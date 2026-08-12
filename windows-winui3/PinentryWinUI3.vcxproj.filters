@@ -59,6 +59,7 @@
     <ClInclude Include="Platform\CredentialStore.h" />
     <ClInclude Include="Platform\OwnerIcon.h" />
     <ClInclude Include="Platform\SecureString.h" />
+    <ClInclude Include="Platform\Trace.h" />
     <ClInclude Include="Platform\WindowsHello.h" />
     <ClInclude Include="PinentryDialog.xaml.h">
       <Filter>UI</Filter>
@@ -108,6 +109,7 @@
     <ClCompile Include="Core\PinentryRuntime.cpp" />
     <ClCompile Include="Platform\CredentialStore.cpp" />
     <ClCompile Include="Platform\OwnerIcon.cpp" />
+    <ClCompile Include="Platform\Trace.cpp" />
     <ClCompile Include="Platform\WindowsHello.cpp" />
     <ClCompile Include="PinentryDialog.xaml.cpp">
       <Filter>UI</Filter>

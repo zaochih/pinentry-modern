@@ -2,6 +2,7 @@
 #include "App.xaml.h"
 
 #include "Core/PinentryRuntime.h"
+#include "Platform/Trace.h"
 
 extern "C"
 {
@@ -21,10 +22,12 @@ namespace winrt::PinentryWinUI3::implementation
 
     void App::OnLaunched(LaunchActivatedEventArgs const&)
     {
+        ::PinentryWinUI3::Platform::ClearTraceLog();
         ::PinentryWinUI3::Core::SetUIDispatcher(DispatcherQueue::GetForCurrentThread());
 
         std::thread([]()
         {
+            winrt::init_apartment(winrt::apartment_type::multi_threaded);
             int const result = pinentry_loop();
             ::PinentryWinUI3::Core::ExitApplicationFromPinentryThread(result);
         }).detach();

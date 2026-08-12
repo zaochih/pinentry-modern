@@ -5,6 +5,7 @@
 #include "PinentryRuntime.h"
 #include "../Platform/CredentialStore.h"
 #include "../Platform/SecureString.h"
+#include "../Platform/Trace.h"
 #include "../Platform/WindowsHello.h"
 #include "../PinentryDialog.xaml.h"
 
@@ -40,34 +41,50 @@ namespace
 
     std::optional<DialogResponse> TryAutomaticCredential(PinentryRequestPayload const& request)
     {
-        if (!request.requiresPassphrase ||
-            request.repeatPassphrase ||
-            request.automaticCredentialTarget.empty())
+        if (!request.requiresPassphrase)
         {
+            Trace(L"credential", L"skip automatic credential: request does not require passphrase");
+            return std::nullopt;
+        }
+
+        if (request.repeatPassphrase)
+        {
+            Trace(L"credential", L"skip automatic credential: repeat passphrase is active");
+            return std::nullopt;
+        }
+
+        if (request.automaticCredentialTarget.empty())
+        {
+            Trace(L"credential", L"skip automatic credential: credential target is empty");
             return std::nullopt;
         }
 
         CredentialStore store;
         if (!store.Has(request.automaticCredentialTarget))
         {
+            Trace(L"credential", L"credential not found: " + request.automaticCredentialTarget);
             return std::nullopt;
         }
 
+        Trace(L"credential", L"credential found, requesting Windows Hello: " + request.automaticCredentialTarget);
         auto hello = VerifyWindowsHello(
             request.automaticWindowsHelloPrompt.empty()
                 ? Localization::WindowsHelloUnlockPrompt()
                 : request.automaticWindowsHelloPrompt);
         if (hello != WindowsHelloResult::Verified)
         {
+            Trace(L"credential", L"Windows Hello did not verify, result=" + std::to_wstring(static_cast<int>(hello)));
             return std::nullopt;
         }
 
         auto secret = store.Read(request.automaticCredentialTarget);
         if (!secret || secret->Empty())
         {
+            Trace(L"credential", L"credential read returned empty secret: " + request.automaticCredentialTarget);
             return std::nullopt;
         }
 
+        Trace(L"credential", L"credential unlocked successfully: " + request.automaticCredentialTarget);
         DialogResponse response;
         response.confirmed = true;
         response.passphrase = secret->Take();
@@ -185,7 +202,8 @@ int pinentry_winui3_cmd_handler(pinentry_t pe)
 
         if (!credentialTarget.empty() && response.saveInCredentialManager && length > 0)
         {
-            CredentialStore().Write(credentialTarget, credentialLabel, FromPinentryString(pe->pin));
+            bool const saved = CredentialStore().Write(credentialTarget, credentialLabel, FromPinentryString(pe->pin));
+            Trace(L"credential", std::wstring(saved ? L"saved credential: " : L"failed to save credential: ") + credentialTarget);
         }
 
         return length;

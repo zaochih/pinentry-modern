@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PinentryDialog.xaml.h"
+#include "Platform/Trace.h"
 
 #include "Core/Localization.h"
 #include "Core/PinentryQuality.h"
@@ -66,6 +67,9 @@ namespace winrt::PinentryWinUI3::implementation
             UINT const effectiveDpi = dpi == 0 ? USER_DEFAULT_SCREEN_DPI : dpi;
             return static_cast<int>(std::ceil(dips * static_cast<double>(effectiveDpi) / 96.0));
         }
+
+        DWORD constexpr DwmwaUseImmersiveDarkMode = 20;
+        COLORREF constexpr DwmwaColorNone = 0xFFFFFFFE;
     }
 
     PinentryDialog::PinentryDialog()
@@ -119,6 +123,13 @@ namespace winrt::PinentryWinUI3::implementation
             if (auto self = weak.get())
             {
                 self->ScheduleFitWindowToContent();
+            }
+        });
+        RootGrid().ActualThemeChanged([weak = get_weak()](FrameworkElement const&, winrt::Windows::Foundation::IInspectable const&)
+        {
+            if (auto self = weak.get())
+            {
+                self->TuneWindowFrame();
             }
         });
 
@@ -199,6 +210,9 @@ namespace winrt::PinentryWinUI3::implementation
         }
 
         LONG_PTR style = GetWindowLongPtr(hwnd, GWL_STYLE);
+        style &= ~WS_CAPTION;
+        style &= ~WS_BORDER;
+        style &= ~WS_DLGFRAME;
         style &= ~WS_THICKFRAME;
         style &= ~WS_MAXIMIZEBOX;
         style &= ~WS_MINIMIZEBOX;
@@ -259,7 +273,14 @@ namespace winrt::PinentryWinUI3::implementation
             return;
         }
 
-        COLORREF const borderColor = RGB(0xD0, 0xD0, 0xD0);
+        BOOL const darkFrame = RootGrid().ActualTheme() == ElementTheme::Dark;
+        DwmSetWindowAttribute(
+            hwnd,
+            DwmwaUseImmersiveDarkMode,
+            &darkFrame,
+            sizeof(darkFrame));
+
+        COLORREF const borderColor = darkFrame ? DwmwaColorNone : RGB(0xD0, 0xD0, 0xD0);
         DwmSetWindowAttribute(
             hwnd,
             DWMWA_BORDER_COLOR,
@@ -512,7 +533,7 @@ namespace winrt::PinentryWinUI3::implementation
     {
         std::wstring iconPath;
         ::PinentryWinUI3::Platform::OwnerApplicationInfo ownerInfo;
-        OutputDebugStringW((L"[pinentry-winui3 owner] dialog owner pid: " + std::to_wstring(dialog_.iconSource.ownerPID) + L"\n").c_str());
+        ::PinentryWinUI3::Platform::Trace(L"owner", L"dialog owner pid: " + std::to_wstring(dialog_.iconSource.ownerPID));
         ownerInfo = ::PinentryWinUI3::Platform::ResolveOwnerApplicationInfo(dialog_.iconSource.ownerPID);
         if (!ownerInfo.displayName.empty())
         {

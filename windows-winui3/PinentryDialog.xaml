@@ -3,7 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid x:Name="RootGrid" Width="450" Background="White">
+    <Grid x:Name="RootGrid" Width="450" Background="{ThemeResource PinentryDialogBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -11,7 +11,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Height="34" Background="#E7E7E7">
+        <Grid Grid.Row="0" Height="34" Background="{ThemeResource PinentryDialogHeaderBackgroundBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="48" />
@@ -23,7 +23,7 @@
                     x:Name="WindowCaptionText"
                     VerticalAlignment="Center"
                     FontSize="11"
-                    Foreground="#111111" />
+                    Foreground="{ThemeResource PinentryDialogPrimaryTextBrush}" />
             </Grid>
             <Button
                 Grid.Column="1"
@@ -37,17 +37,17 @@
                 <FontIcon
                     Glyph="&#xE8BB;"
                     FontSize="10"
-                    Foreground="#111111" />
+                    Foreground="{ThemeResource PinentryDialogPrimaryTextBrush}" />
             </Button>
         </Grid>
 
-        <Border Grid.Row="1" Background="#E7E7E7" Padding="20,12,20,12">
+        <Border Grid.Row="1" Background="{ThemeResource PinentryDialogHeaderBackgroundBrush}" Padding="20,12,20,12">
             <StackPanel>
                 <TextBlock
                     x:Name="TitleText"
                     FontSize="20"
                     FontWeight="Normal"
-                    Foreground="#111111"
+                    Foreground="{ThemeResource PinentryDialogPrimaryTextBrush}"
                     TextWrapping="WrapWholeWords" />
             </StackPanel>
         </Border>
@@ -55,7 +55,7 @@
         <StackPanel
             Grid.Row="2"
             Padding="20,22,20,24"
-            Background="White"
+            Background="{ThemeResource PinentryDialogBackgroundBrush}"
             Spacing="16">
             <Grid ColumnSpacing="16">
                 <Grid.ColumnDefinitions>
@@ -72,7 +72,7 @@
                         x:Name="DefaultIcon"
                         Glyph="&#xE72E;"
                         FontSize="24"
-                        Foreground="#0078D4" />
+                        Foreground="{ThemeResource PinentryDialogAccentBrush}" />
                     <Image
                         x:Name="DialogIconImage"
                         Width="34"
@@ -85,62 +85,71 @@
                     x:Name="SourceNameText"
                     Grid.Column="1"
                     VerticalAlignment="Center"
-                    FontSize="16"
-                    FontWeight="SemiBold"
-                    Foreground="#111111"
+                    FontSize="17"
+                    FontWeight="Normal"
+                    Foreground="{ThemeResource PinentryDialogPrimaryTextBrush}"
                     TextTrimming="CharacterEllipsis"
                     Visibility="Collapsed" />
             </Grid>
 
             <TextBlock
                 x:Name="MessageText"
-                FontSize="16"
+                FontSize="14"
                 FontWeight="Normal"
-                Foreground="#111111"
+                Foreground="{ThemeResource PinentryDialogPrimaryTextBrush}"
                 TextWrapping="WrapWholeWords"
                 MaxHeight="220" />
 
             <Border
                 x:Name="ErrorBorder"
                 Padding="14,12"
-                Background="#FDE7E9"
-                BorderBrush="#F3B5BB"
+                Background="{ThemeResource PinentryDialogErrorBackgroundBrush}"
+                BorderBrush="{ThemeResource PinentryDialogErrorBorderBrush}"
                 BorderThickness="1"
                 Visibility="Collapsed">
                 <TextBlock
                     x:Name="ErrorText"
-                    Foreground="#A4262C"
+                    FontSize="14"
+                    Foreground="{ThemeResource PinentryDialogErrorTextBrush}"
                     TextWrapping="WrapWholeWords" />
             </Border>
 
             <StackPanel x:Name="PassphrasePanel" Spacing="10">
                 <PasswordBox
                     x:Name="PassphraseBox"
+                    FontSize="14"
                     MinHeight="32"
                     PasswordChanged="OnPassphraseChanged" />
                 <TextBox
                     x:Name="VisiblePassphraseBox"
+                    FontSize="14"
                     MinHeight="32"
                     TextChanged="OnVisiblePassphraseChanged"
                     Visibility="Collapsed" />
                 <PasswordBox
                     x:Name="RepeatPassphraseBox"
+                    FontSize="14"
                     MinHeight="32"
                     PasswordChanged="OnRepeatPassphraseChanged"
                     Visibility="Collapsed" />
                 <TextBlock
                     x:Name="MismatchText"
-                    Foreground="#A4262C"
+                    FontSize="14"
+                    Foreground="{ThemeResource PinentryDialogErrorTextBrush}"
                     Visibility="Collapsed" />
             </StackPanel>
 
             <StackPanel x:Name="QualityPanel" Spacing="8" Visibility="Collapsed">
                 <Grid>
-                    <TextBlock x:Name="QualityTitleText" Foreground="#111111" />
+                    <TextBlock
+                        x:Name="QualityTitleText"
+                        FontSize="14"
+                        Foreground="{ThemeResource PinentryDialogPrimaryTextBrush}" />
                     <TextBlock
                         x:Name="QualityText"
+                        FontSize="14"
                         HorizontalAlignment="Right"
-                        Foreground="#5E5E5E" />
+                        Foreground="{ThemeResource PinentryDialogSecondaryTextBrush}" />
                 </Grid>
                 <ProgressBar
                     x:Name="QualityBar"
@@ -151,18 +160,21 @@
             <StackPanel x:Name="OptionsPanel" Spacing="8">
                 <CheckBox
                     x:Name="ShowTypingCheckBox"
+                    FontSize="14"
                     Checked="OnShowTypingChanged"
                     Unchecked="OnShowTypingChanged" />
                 <CheckBox
-                    x:Name="SaveCredentialCheckBox" />
+                    x:Name="SaveCredentialCheckBox"
+                    FontSize="14" />
                 <TextBlock
                     x:Name="TimeoutText"
-                    Foreground="#5E5E5E"
+                    FontSize="14"
+                    Foreground="{ThemeResource PinentryDialogSecondaryTextBrush}"
                     Visibility="Collapsed" />
             </StackPanel>
         </StackPanel>
 
-        <Border Grid.Row="3" Background="#F3F3F3" Padding="20,22">
+        <Border Grid.Row="3" Background="{ThemeResource PinentryDialogFooterBackgroundBrush}" Padding="20,22">
             <Grid
                 x:Name="ActionButtonsGrid"
                 ColumnSpacing="12"
