@@ -412,7 +412,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
@@ -431,7 +431,7 @@
 					"-framework",
 					Security,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.pinentry-mac-swift;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.stapxs.pinentry-modern";
 				PRODUCT_MODULE_NAME = pinentry_mac_swift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -474,7 +474,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(PROJECT_DIR)/../pinentry/libpinentry.a",
@@ -493,7 +493,7 @@
 					"-framework",
 					Security,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.gpgtools.pinentry-mac-swift;
+				PRODUCT_BUNDLE_IDENTIFIER = "cn.stapxs.pinentry-modern";
 				PRODUCT_MODULE_NAME = pinentry_mac_swift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
