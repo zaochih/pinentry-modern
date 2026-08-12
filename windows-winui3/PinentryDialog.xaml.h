@@ -23,13 +23,25 @@ namespace winrt::PinentryWinUI3::implementation
         void OnShowTypingChanged(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
 
     private:
+        void InitializeDialogWindow();
+        void ConfigureTitleBar();
+        void DisableResize();
+        void HideFromTaskbar();
+        void PreferRoundedCorners();
+        void TuneWindowFrame();
         void Populate();
         void Resolve(::PinentryWinUI3::Core::DialogResponse response);
         void UpdatePassphraseMirror();
         void UpdateValidation();
         void UpdateQuality();
         void UpdateIcon();
+        void UpdateActionButtonLayout();
         void StartTimeout();
+        void FitWindowToContent();
+        void KeepWindowOnTop();
+        void FocusInitialControl();
+        HWND NativeWindowHandle();
+        double PreferredContentWidth() const;
         std::wstring CurrentPassphrase();
         std::wstring CurrentRepeatPassphrase();
 

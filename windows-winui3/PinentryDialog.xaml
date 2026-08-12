@@ -4,132 +4,209 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Pinentry Windows">
 
-    <Grid x:Name="RootGrid" Width="420" Padding="28" RowSpacing="16">
+    <Grid x:Name="RootGrid" Width="440" Background="White">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" ColumnSpacing="14">
+        <Grid Grid.Row="0" Height="34" Background="#E7E7E7">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="42" />
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="48" />
             </Grid.ColumnDefinitions>
-            <Grid Width="42" Height="42">
-                <FontIcon
-                    x:Name="DefaultIcon"
-                    Glyph="&#xE72E;"
-                    FontSize="30"
-                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
-                <Image
-                    x:Name="DialogIconImage"
-                    Width="36"
-                    Height="36"
-                    Stretch="Uniform"
-                    Visibility="Collapsed" />
+            <Grid
+                x:Name="TitleBarDragRegion"
+                Padding="10,0,0,0">
+                <StackPanel
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <FontIcon
+                        Glyph="&#xE72E;"
+                        FontSize="13"
+                        Foreground="#0078D4" />
+                    <TextBlock
+                        x:Name="WindowCaptionText"
+                        VerticalAlignment="Center"
+                        FontSize="11"
+                        Foreground="#111111" />
+                </StackPanel>
             </Grid>
-            <StackPanel Grid.Column="1" Spacing="6">
+            <Button
+                Grid.Column="1"
+                Height="34"
+                Padding="0"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="Transparent"
+                BorderThickness="0"
+                Click="OnCancelClick">
+                <FontIcon
+                    Glyph="&#xE8BB;"
+                    FontSize="10"
+                    Foreground="#111111" />
+            </Button>
+        </Grid>
+
+        <Border Grid.Row="1" Background="#E7E7E7" Padding="26,12,26,12">
+            <StackPanel>
                 <TextBlock
                     x:Name="TitleText"
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    TextWrapping="Wrap" />
-                <TextBlock
-                    x:Name="MessageText"
-                    Opacity="0.82"
-                    TextWrapping="WrapWholeWords"
-                    MaxHeight="180" />
+                    FontSize="21"
+                    FontWeight="Normal"
+                    Foreground="#111111"
+                    TextWrapping="WrapWholeWords" />
             </StackPanel>
-        </Grid>
-
-        <Border
-            x:Name="ErrorBorder"
-            Grid.Row="1"
-            Padding="12"
-            CornerRadius="6"
-            Background="{ThemeResource SystemFillColorCriticalBackgroundBrush}"
-            Visibility="Collapsed">
-            <TextBlock
-                x:Name="ErrorText"
-                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                TextWrapping="WrapWholeWords" />
         </Border>
 
-        <StackPanel x:Name="PassphrasePanel" Grid.Row="2" Spacing="8">
-            <TextBlock x:Name="PromptText" FontWeight="SemiBold" />
-            <PasswordBox
-                x:Name="PassphraseBox"
-                PasswordChanged="OnPassphraseChanged" />
-            <TextBox
-                x:Name="VisiblePassphraseBox"
-                TextChanged="OnVisiblePassphraseChanged"
-                Visibility="Collapsed" />
-            <PasswordBox
-                x:Name="RepeatPassphraseBox"
-                PasswordChanged="OnRepeatPassphraseChanged"
-                Visibility="Collapsed" />
-            <TextBlock
-                x:Name="MismatchText"
-                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                Text="The two passphrases must match."
-                Visibility="Collapsed" />
-        </StackPanel>
+        <StackPanel
+            Grid.Row="2"
+            Padding="26,22,26,24"
+            Background="White"
+            Spacing="16">
+            <Grid ColumnSpacing="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-        <StackPanel x:Name="QualityPanel" Grid.Row="3" Spacing="6" Visibility="Collapsed">
-            <Grid>
-                <TextBlock Text="Passphrase strength" />
+                <Border
+                    Width="40"
+                    Height="40"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Background="#F7F7F7"
+                    BorderBrush="#D9D9D9"
+                    BorderThickness="1">
+                    <Grid>
+                        <FontIcon
+                            x:Name="DefaultIcon"
+                            Glyph="&#xE72E;"
+                            FontSize="24"
+                            Foreground="#0078D4" />
+                        <Image
+                            x:Name="DialogIconImage"
+                            Width="34"
+                            Height="34"
+                            Stretch="Uniform"
+                            Visibility="Collapsed" />
+                    </Grid>
+                </Border>
+
                 <TextBlock
-                    x:Name="QualityText"
-                    HorizontalAlignment="Right"
-                    Opacity="0.72" />
+                    x:Name="MessageText"
+                    Grid.Column="1"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Foreground="#111111"
+                    TextWrapping="WrapWholeWords"
+                    MaxHeight="220" />
             </Grid>
-            <ProgressBar
-                x:Name="QualityBar"
-                Minimum="0"
-                Maximum="100" />
+
+            <Border
+                x:Name="ErrorBorder"
+                Padding="14,12"
+                Background="#FDE7E9"
+                BorderBrush="#F3B5BB"
+                BorderThickness="1"
+                Visibility="Collapsed">
+                <TextBlock
+                    x:Name="ErrorText"
+                    Foreground="#A4262C"
+                    TextWrapping="WrapWholeWords" />
+            </Border>
+
+            <StackPanel x:Name="PassphrasePanel" Spacing="10">
+                <TextBlock
+                    x:Name="PromptText"
+                    FontSize="13"
+                    FontWeight="SemiBold"
+                    Foreground="#111111" />
+                <PasswordBox
+                    x:Name="PassphraseBox"
+                    MinHeight="32"
+                    PasswordChanged="OnPassphraseChanged" />
+                <TextBox
+                    x:Name="VisiblePassphraseBox"
+                    MinHeight="32"
+                    TextChanged="OnVisiblePassphraseChanged"
+                    Visibility="Collapsed" />
+                <PasswordBox
+                    x:Name="RepeatPassphraseBox"
+                    MinHeight="32"
+                    PasswordChanged="OnRepeatPassphraseChanged"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="MismatchText"
+                    Foreground="#A4262C"
+                    Text="The two passphrases must match."
+                    Visibility="Collapsed" />
+            </StackPanel>
+
+            <StackPanel x:Name="QualityPanel" Spacing="8" Visibility="Collapsed">
+                <Grid>
+                    <TextBlock Text="Passphrase strength" Foreground="#111111" />
+                    <TextBlock
+                        x:Name="QualityText"
+                        HorizontalAlignment="Right"
+                        Foreground="#5E5E5E" />
+                </Grid>
+                <ProgressBar
+                    x:Name="QualityBar"
+                    Minimum="0"
+                    Maximum="100" />
+            </StackPanel>
+
+            <StackPanel x:Name="OptionsPanel" Spacing="8">
+                <CheckBox
+                    x:Name="ShowTypingCheckBox"
+                    Content="Show typing"
+                    Checked="OnShowTypingChanged"
+                    Unchecked="OnShowTypingChanged" />
+                <CheckBox
+                    x:Name="SaveCredentialCheckBox"
+                    Content="Save in Windows Credential Manager" />
+                <TextBlock
+                    x:Name="TimeoutText"
+                    Foreground="#5E5E5E"
+                    Visibility="Collapsed" />
+            </StackPanel>
         </StackPanel>
 
-        <StackPanel x:Name="OptionsPanel" Grid.Row="4" Spacing="8">
-            <CheckBox
-                x:Name="ShowTypingCheckBox"
-                Content="Show typing"
-                Checked="OnShowTypingChanged"
-                Unchecked="OnShowTypingChanged" />
-            <CheckBox
-                x:Name="SaveCredentialCheckBox"
-                Content="Save in Windows Credential Manager" />
-            <TextBlock
-                x:Name="TimeoutText"
-                Opacity="0.68"
-                Visibility="Collapsed" />
-        </StackPanel>
-
-        <Grid Grid.Row="5" ColumnSpacing="8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <Button
-                x:Name="NotOkButton"
-                Grid.Column="1"
-                Click="OnNotOkClick"
-                Visibility="Collapsed" />
-            <Button
-                x:Name="CancelButton"
-                Grid.Column="2"
-                Click="OnCancelClick" />
-            <Button
-                x:Name="PrimaryButton"
-                Grid.Column="3"
-                Style="{StaticResource AccentButtonStyle}"
-                Click="OnPrimaryClick" />
-        </Grid>
+        <Border Grid.Row="3" Background="#F3F3F3" Padding="26,22">
+            <Grid x:Name="ActionButtonsGrid" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="0" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    x:Name="NotOkButton"
+                    Grid.Column="0"
+                    Height="32"
+                    HorizontalAlignment="Stretch"
+                    FontSize="14"
+                    Click="OnNotOkClick"
+                    Visibility="Collapsed" />
+                <Button
+                    x:Name="CancelButton"
+                    Grid.Column="0"
+                    Height="32"
+                    HorizontalAlignment="Stretch"
+                    FontSize="14"
+                    Click="OnCancelClick" />
+                <Button
+                    x:Name="PrimaryButton"
+                    Grid.Column="1"
+                    Height="32"
+                    HorizontalAlignment="Stretch"
+                    FontSize="14"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="OnPrimaryClick" />
+            </Grid>
+        </Border>
     </Grid>
 </Window>

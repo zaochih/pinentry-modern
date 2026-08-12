@@ -77,7 +77,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(AssuanLibDir);%(AdditionalLibraryDirectories);C:\Program Files\Gpg4win\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libgpg-assuan.imp;libgpg-error.imp;Advapi32.lib;Shell32.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libgpg-assuan.imp;libgpg-error.imp;Advapi32.lib;Shell32.lib;User32.lib;Dwmapi.lib;RuntimeObject.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
