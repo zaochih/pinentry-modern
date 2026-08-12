@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PinentryMapper.h"
+#include "Localization.h"
 
 extern "C"
 {
@@ -18,10 +19,10 @@ namespace PinentryWinUI3::Core
             return value;
         }
 
-        std::wstring ValueOr(std::wstring const& value, std::wstring_view fallback)
+        std::wstring ValueOr(std::wstring const& value, std::wstring fallback)
         {
             auto trimmed = Trim(value);
-            return trimmed.empty() ? std::wstring(fallback) : value;
+            return trimmed.empty() ? std::move(fallback) : value;
         }
 
         std::wstring DecodeWithCodePage(char const* value, UINT codePage)
@@ -201,33 +202,6 @@ namespace PinentryWinUI3::Core
             return decoded.empty() ? fallbackDescription : decoded;
         }
 
-        std::wstring LocalizeKnownText(std::wstring const& value)
-        {
-            static const std::pair<std::wstring_view, std::wstring_view> known[] = {
-                { L"Unlock Secret Key", L"Unlock Secret Key" },
-                { L"Allow Key Operation", L"Allow Key Operation" },
-                { L"Set New Passphrase", L"Set New Passphrase" },
-                { L"Passphrase", L"Passphrase" },
-                { L"Repeat Passphrase", L"Repeat Passphrase" },
-                { L"Confirm Passphrase", L"Confirm Passphrase" },
-                { L"New Passphrase", L"New Passphrase" },
-                { L"OK", L"OK" },
-                { L"Cancel", L"Cancel" },
-                { L"Yes", L"Yes" },
-                { L"No", L"No" }
-            };
-
-            auto trimmed = Trim(value);
-            for (auto const& entry : known)
-            {
-                if (trimmed == entry.first)
-                {
-                    return std::wstring(entry.second);
-                }
-            }
-
-            return value;
-        }
     }
 
     std::wstring FromPinentryString(char const* value)
@@ -333,10 +307,10 @@ namespace PinentryWinUI3::Core
         request.automaticCredentialTarget = CredentialTargetForCacheIdentifier(cacheIdentifier);
         if (!request.automaticCredentialTarget.empty())
         {
-            request.automaticWindowsHelloPrompt = L"Unlock your GPG passphrase.";
+            request.automaticWindowsHelloPrompt = Localization::WindowsHelloUnlockPrompt();
             if (!request.identity.userID.empty())
             {
-                request.automaticWindowsHelloPrompt = L"Unlock " + request.identity.userID + L".";
+                request.automaticWindowsHelloPrompt = Localization::WindowsHelloUnlockPrompt(request.identity.userID);
             }
         }
 
@@ -353,13 +327,19 @@ namespace PinentryWinUI3::Core
 
         DialogModel dialog;
         dialog.mode = payload.requiresPassphrase ? DialogMode::Passphrase : DialogMode::Confirm;
-        dialog.title = ValueOr(LocalizeKnownText(payload.title), L"Pinentry Windows");
-        dialog.message = resolvedMessage;
-        dialog.errorText = LocalizeKnownText(payload.errorText);
-        dialog.promptText = LocalizeKnownText(payload.promptText);
-        dialog.okText = ValueOr(LocalizeKnownText(payload.okText), payload.requiresPassphrase ? L"OK" : L"Allow");
-        dialog.cancelText = ValueOr(LocalizeKnownText(payload.cancelText), L"Cancel");
-        dialog.notOkText = payload.requiresPassphrase ? L"" : LocalizeKnownText(payload.notOkText);
+        dialog.title = ValueOr(
+            Localization::LocalizeKnownPinentryText(payload.title, Localization::TextRole::Title),
+            Localization::DefaultDialogTitle());
+        dialog.message = Localization::LocalizeKnownPinentryText(resolvedMessage, Localization::TextRole::Message);
+        dialog.errorText = Localization::LocalizeKnownPinentryText(payload.errorText, Localization::TextRole::Message);
+        dialog.promptText = Localization::LocalizeKnownPinentryText(payload.promptText, Localization::TextRole::Prompt);
+        dialog.okText = ValueOr(
+            Localization::LocalizeKnownPinentryText(payload.okText, Localization::TextRole::Ok),
+            payload.requiresPassphrase ? Localization::UnlockAction() : Localization::AllowAction());
+        dialog.cancelText = ValueOr(
+            Localization::LocalizeKnownPinentryText(payload.cancelText, Localization::TextRole::Cancel),
+            Localization::CancelAction());
+        dialog.notOkText = payload.requiresPassphrase ? L"" : Localization::LocalizeKnownPinentryText(payload.notOkText, Localization::TextRole::NotOk);
         dialog.showsRepeatField = payload.requiresPassphrase && payload.repeatPassphrase;
         dialog.showsQualityBar = payload.requiresPassphrase && payload.qualityBarRequested;
         dialog.canUseCredentialManager = payload.requiresPassphrase && CanPersistCredential(payload.keyInfo);

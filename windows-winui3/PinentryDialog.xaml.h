@@ -25,6 +25,8 @@ namespace winrt::PinentryWinUI3::implementation
     private:
         void InitializeDialogWindow();
         void ConfigureTitleBar();
+        void PrepareInitialWindowForLayout();
+        void ShowWindowAfterInitialLayout();
         void DisableResize();
         void HideFromTaskbar();
         void PreferRoundedCorners();
@@ -38,10 +40,10 @@ namespace winrt::PinentryWinUI3::implementation
         void UpdateActionButtonLayout();
         void StartTimeout();
         void FitWindowToContent();
-        void KeepWindowOnTop();
+        void ScheduleFitWindowToContent();
+        void ShowWindowInFront();
         void FocusInitialControl();
         HWND NativeWindowHandle();
-        double PreferredContentWidth() const;
         std::wstring CurrentPassphrase();
         std::wstring CurrentRepeatPassphrase();
 
@@ -49,6 +51,9 @@ namespace winrt::PinentryWinUI3::implementation
         std::function<void(::PinentryWinUI3::Core::DialogResponse)> onResolve_;
         bool completed_ = false;
         bool updatingMirror_ = false;
+        bool fittingWindow_ = false;
+        bool fitWindowPending_ = false;
+        bool initialLayoutComplete_ = false;
         int remainingSeconds_ = 0;
         winrt::Microsoft::UI::Dispatching::DispatcherQueueTimer timeoutTimer_{ nullptr };
     };

@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "PinentryHandler.h"
+#include "Localization.h"
 #include "PinentryMapper.h"
 #include "PinentryRuntime.h"
 #include "../Platform/CredentialStore.h"
@@ -54,7 +55,7 @@ namespace
 
         auto hello = VerifyWindowsHello(
             request.automaticWindowsHelloPrompt.empty()
-                ? L"Unlock your GPG passphrase."
+                ? Localization::WindowsHelloUnlockPrompt()
                 : request.automaticWindowsHelloPrompt);
         if (hello != WindowsHelloResult::Verified)
         {

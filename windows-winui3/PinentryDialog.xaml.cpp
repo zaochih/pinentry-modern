@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "PinentryDialog.xaml.h"
 
+#include "Core/Localization.h"
 #include "Core/PinentryQuality.h"
 #include "Platform/OwnerIcon.h"
 #include "Platform/SecureString.h"
@@ -37,17 +38,17 @@ namespace winrt::PinentryWinUI3::implementation
         {
             if (value >= 80)
             {
-                return L"Strong";
+                return ::PinentryWinUI3::Core::Localization::QualityStrong();
             }
             if (value >= 55)
             {
-                return L"Good";
+                return ::PinentryWinUI3::Core::Localization::QualityGood();
             }
             if (value >= 30)
             {
-                return L"Fair";
+                return ::PinentryWinUI3::Core::Localization::QualityFair();
             }
-            return L"Weak";
+            return ::PinentryWinUI3::Core::Localization::QualityWeak();
         }
 
         winrt::Windows::Foundation::Uri FileUri(std::wstring path)
@@ -95,7 +96,9 @@ namespace winrt::PinentryWinUI3::implementation
 
     void PinentryDialog::InitializeDialogWindow()
     {
+        Title(H(::PinentryWinUI3::Core::Localization::DefaultDialogTitle()));
         ConfigureTitleBar();
+        PrepareInitialWindowForLayout();
 
         RootGrid().Loaded([weak = get_weak()](winrt::Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
         {
@@ -107,8 +110,15 @@ namespace winrt::PinentryWinUI3::implementation
                 self->DisableResize();
                 self->PreferRoundedCorners();
                 self->TuneWindowFrame();
-                self->KeepWindowOnTop();
                 self->FocusInitialControl();
+                self->ShowWindowAfterInitialLayout();
+            }
+        });
+        RootGrid().SizeChanged([weak = get_weak()](winrt::Windows::Foundation::IInspectable const&, SizeChangedEventArgs const&)
+        {
+            if (auto self = weak.get())
+            {
+                self->ScheduleFitWindowToContent();
             }
         });
 
@@ -120,7 +130,6 @@ namespace winrt::PinentryWinUI3::implementation
                 self->DisableResize();
                 self->PreferRoundedCorners();
                 self->TuneWindowFrame();
-                self->KeepWindowOnTop();
             }
         });
     }
@@ -144,6 +153,41 @@ namespace winrt::PinentryWinUI3::implementation
             presenter.IsMaximizable(false);
             presenter.IsMinimizable(false);
         }
+    }
+
+    void PinentryDialog::PrepareInitialWindowForLayout()
+    {
+        HWND hwnd = NativeWindowHandle();
+        if (!hwnd)
+        {
+            return;
+        }
+
+        LONG_PTR exStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+        exStyle |= WS_EX_LAYERED;
+        SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle);
+        SetLayeredWindowAttributes(hwnd, 0, 0, LWA_ALPHA);
+        SetWindowPos(
+            hwnd,
+            nullptr,
+            -32000,
+            -32000,
+            0,
+            0,
+            SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+
+    void PinentryDialog::ShowWindowAfterInitialLayout()
+    {
+        HWND hwnd = NativeWindowHandle();
+        if (!hwnd)
+        {
+            return;
+        }
+
+        initialLayoutComplete_ = true;
+        SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+        ShowWindowInFront();
     }
 
     void PinentryDialog::DisableResize()
@@ -226,8 +270,7 @@ namespace winrt::PinentryWinUI3::implementation
     void PinentryDialog::Populate()
     {
         Title(H(dialog_.title));
-        RootGrid().Width(PreferredContentWidth());
-        WindowCaptionText().Text(H(dialog_.title.empty() ? L"Pinentry Windows" : dialog_.title));
+        WindowCaptionText().Text(H(dialog_.title.empty() ? ::PinentryWinUI3::Core::Localization::DefaultDialogTitle() : dialog_.title));
         TitleText().Text(H(dialog_.title));
         MessageText().Text(H(dialog_.message));
         MessageText().Visibility(VisibleIf(!dialog_.message.empty()));
@@ -243,8 +286,13 @@ namespace winrt::PinentryWinUI3::implementation
         ShowTypingCheckBox().Visibility(VisibleIf(isPassphrase && dialog_.showTypingToggleAvailable));
         SaveCredentialCheckBox().Visibility(VisibleIf(isPassphrase && dialog_.canUseCredentialManager));
 
-        auto const promptText = H(dialog_.promptText.empty() ? L"Passphrase" : dialog_.promptText);
-        RepeatPassphraseBox().PlaceholderText(L"Confirm passphrase");
+        MismatchText().Text(H(::PinentryWinUI3::Core::Localization::MismatchHint()));
+        QualityTitleText().Text(H(::PinentryWinUI3::Core::Localization::QualityTitle()));
+        ShowTypingCheckBox().Content(box_value(H(::PinentryWinUI3::Core::Localization::ShowTyping())));
+        SaveCredentialCheckBox().Content(box_value(H(::PinentryWinUI3::Core::Localization::SaveInCredentialManager())));
+
+        auto const promptText = H(dialog_.promptText.empty() ? ::PinentryWinUI3::Core::Localization::DefaultPassphrasePrompt() : dialog_.promptText);
+        RepeatPassphraseBox().PlaceholderText(H(::PinentryWinUI3::Core::Localization::ConfirmPassphrasePrompt()));
         RepeatPassphraseBox().Visibility(VisibleIf(dialog_.showsRepeatField));
 
         ShowTypingCheckBox().IsChecked(dialog_.showTypingDefault);
@@ -274,7 +322,7 @@ namespace winrt::PinentryWinUI3::implementation
         }
 
         TimeoutText().Visibility(Visibility::Visible);
-        TimeoutText().Text(H(L"This request times out in " + std::to_wstring(remainingSeconds_) + L"s."));
+        TimeoutText().Text(H(::PinentryWinUI3::Core::Localization::TimeoutHint(remainingSeconds_)));
 
         timeoutTimer_ = DispatcherQueue().CreateTimer();
         timeoutTimer_.Interval(std::chrono::seconds(1));
@@ -293,7 +341,7 @@ namespace winrt::PinentryWinUI3::implementation
                     return;
                 }
 
-                self->TimeoutText().Text(H(L"This request times out in " + std::to_wstring(self->remainingSeconds_) + L"s."));
+                self->TimeoutText().Text(H(::PinentryWinUI3::Core::Localization::TimeoutHint(self->remainingSeconds_)));
             }
         });
         timeoutTimer_.Start();
@@ -499,25 +547,33 @@ namespace winrt::PinentryWinUI3::implementation
     void PinentryDialog::UpdateActionButtonLayout()
     {
         bool const hasNotOk = !dialog_.notOkText.empty();
-        auto columns = ActionButtonsGrid().ColumnDefinitions();
 
-        columns.GetAt(0).Width(GridLengthHelper::FromValueAndType(1.0, GridUnitType::Star));
-        columns.GetAt(1).Width(GridLengthHelper::FromValueAndType(1.0, GridUnitType::Star));
-        columns.GetAt(2).Width(GridLengthHelper::FromValueAndType(hasNotOk ? 1.0 : 0.0, GridUnitType::Star));
+        ActionButtonsGrid().RowSpacing(hasNotOk ? 10.0 : 0.0);
 
+        Grid::SetRow(NotOkButton(), 0);
         Grid::SetColumn(NotOkButton(), 0);
-        Grid::SetColumn(CancelButton(), hasNotOk ? 1 : 0);
-        Grid::SetColumn(PrimaryButton(), hasNotOk ? 2 : 1);
+        Grid::SetColumnSpan(NotOkButton(), 2);
+
+        Grid::SetRow(CancelButton(), hasNotOk ? 1 : 0);
+        Grid::SetColumn(CancelButton(), 0);
+        Grid::SetColumnSpan(CancelButton(), 1);
+
+        Grid::SetRow(PrimaryButton(), hasNotOk ? 1 : 0);
+        Grid::SetColumn(PrimaryButton(), 1);
+        Grid::SetColumnSpan(PrimaryButton(), 1);
     }
 
     void PinentryDialog::FitWindowToContent()
     {
+        fitWindowPending_ = false;
         HWND hwnd = NativeWindowHandle();
         if (!hwnd)
         {
             return;
         }
 
+        fittingWindow_ = true;
+        RootGrid().ClearValue(FrameworkElement::HeightProperty());
         RootGrid().Measure({ static_cast<float>(RootGrid().Width()), 10000.0f });
         auto const desired = RootGrid().DesiredSize();
         RootGrid().Height(desired.Height);
@@ -537,6 +593,7 @@ namespace winrt::PinentryWinUI3::implementation
         if (!GetMonitorInfo(monitor, &monitorInfo))
         {
             SetWindowPos(hwnd, nullptr, 0, 0, windowSize.Width, windowSize.Height, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+            fittingWindow_ = false;
             return;
         }
 
@@ -546,9 +603,27 @@ namespace winrt::PinentryWinUI3::implementation
         int const x = static_cast<int>(work.left) + std::max<int>(0, (workWidth - windowSize.Width) / 2);
         int const y = static_cast<int>(work.top) + std::max<int>(0, (workHeight - windowSize.Height) / 2);
         appWindow.Move({ x, y });
+        fittingWindow_ = false;
     }
 
-    void PinentryDialog::KeepWindowOnTop()
+    void PinentryDialog::ScheduleFitWindowToContent()
+    {
+        if (fittingWindow_ || fitWindowPending_)
+        {
+            return;
+        }
+
+        fitWindowPending_ = true;
+        DispatcherQueue().TryEnqueue([weak = get_weak()]
+        {
+            if (auto self = weak.get())
+            {
+                self->FitWindowToContent();
+            }
+        });
+    }
+
+    void PinentryDialog::ShowWindowInFront()
     {
         HWND hwnd = NativeWindowHandle();
         if (!hwnd)
@@ -556,7 +631,7 @@ namespace winrt::PinentryWinUI3::implementation
             return;
         }
 
-        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
         SetForegroundWindow(hwnd);
     }
 
@@ -589,30 +664,4 @@ namespace winrt::PinentryWinUI3::implementation
         return hwnd;
     }
 
-    double PinentryDialog::PreferredContentWidth() const
-    {
-        size_t const longestText = std::max({
-            dialog_.title.size(),
-            dialog_.message.size(),
-            dialog_.errorText.size(),
-            dialog_.promptText.size()
-        });
-
-        double width = 440.0;
-        if (longestText > 90)
-        {
-            width = 520.0;
-        }
-        else if (longestText > 48)
-        {
-            width = 480.0;
-        }
-
-        if (dialog_.showsRepeatField || dialog_.showsQualityBar || dialog_.canUseCredentialManager)
-        {
-            width = std::max(width, 460.0);
-        }
-
-        return std::clamp(width, 420.0, 540.0);
-    }
 }

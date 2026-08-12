@@ -72,6 +72,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Compat;$(ProjectDir)Generated Files;$(ProjectDir)Generated Files\sources;$(ProjectDir)Generated Files\UI;$(ProjectDir)Generated Files\winrt;$(IntDir)Generated Files;$(IntDir)Generated Files\sources;$(IntDir)Generated Files\UI;$(IntDir)Generated Files\winrt;$(ProjectDir)..;$(ProjectDir)..\pinentry;$(ProjectDir)..\secmem;$(AssuanIncludeDir);C:\Program Files\Gpg4win\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HAVE_CONFIG_H;UNICODE;_UNICODE;WIN32_LEAN_AND_MEAN;NOMINMAX;WINRT_ENABLE_LEGACY_COM=1;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -110,6 +111,7 @@
     <ClInclude Include="Compat\config.h" />
     <ClInclude Include="Compat\unistd.h" />
     <ClInclude Include="Core\PinentryHandler.h" />
+    <ClInclude Include="Core\Localization.h" />
     <ClInclude Include="Core\PinentryMapper.h" />
     <ClInclude Include="Core\PinentryQuality.h" />
     <ClInclude Include="Core\PinentryRuntime.h" />
@@ -128,6 +130,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="App.xaml.cpp" />
     <ClCompile Include="Core\PinentryHandler.cpp" />
+    <ClCompile Include="Core\Localization.cpp" />
     <ClCompile Include="Core\PinentryMapper.cpp" />
     <ClCompile Include="Core\PinentryQuality.cpp" />
     <ClCompile Include="Core\PinentryRuntime.cpp" />
