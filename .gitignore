@@ -59,3 +59,16 @@ macosx-swift/Makefile.in
 macosx-swift/Makefile
 pinentry/libpinentry.a
 secmem/libsecmem.a
+
+# Windows / Visual Studio
+windows-winui3/.vs/
+windows-winui3/bin/
+windows-winui3/obj/
+windows-winui3/packages/
+windows-winui3/Generated Files/
+windows-winui3/*.aps
+windows-winui3/*.user
+windows-winui3/*.suo
+windows-winui3/*.VC.db
+windows-winui3/*.VC.VC.opendb
+windows-winui3/ipch/

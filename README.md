@@ -35,6 +35,11 @@ The build depends on some tools that need to be installed. Please make sure that
 xcodebuild -project "macosx-swift/pinentry-mac-swift.xcodeproj" -scheme "pinentry-mac-swift" -c=/prionation Debug -destination 'platform=macOS' -derivedDataPath /private/tmp/pinentry-mac-modern-build build
 ~~~
 
+## Windows 原生版本 / Windows Native Version
+WinUI 3 原生版本位于 `windows-winui3`，使用 C++/WinRT，并复用 `pinentry` 与 `secmem` C 核心。该版本面向 Gpg4win/Windows 原生使用场景，包含 Credential Manager、Windows Hello、重复口令、质量条和超时对话框支持。
+
+The WinUI 3 native version lives in `windows-winui3`. It uses C++/WinRT and reuses the shared `pinentry` and `secmem` C core. See `windows-winui3/README.md` for Visual Studio build and Gpg4win integration notes.
+
 ## 感谢 / Acknowledgements
 - 本项目使用 GPT 5.5 辅助完成 / This project was assisted by GPT 5.5
 - 感谢 [pinentry-touchid](https://github.com/jorgelbg/pinentry-touchid) 项目对 Touch ID 相关功能的灵感 / Thanks to the [pinentry-touchid](https://github.com/jorgelbg/pinentry-touchid) project for inspiration on Touch ID related features

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Core">
+      <UniqueIdentifier>{6F13BB38-654B-44A5-99C4-79B081359E0B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{4CC940DE-A0F1-4D58-8A84-80BB6A30F849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{0D16C61D-F922-4462-9026-3F2F2DA2937E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Compat">
+      <UniqueIdentifier>{F0059C54-8F84-47AD-84B6-7AC244174EE8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shared C Core">
+      <UniqueIdentifier>{EB793F83-137E-4A3B-97F2-BBB9F6396A9F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Core\PinentryMapper.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\PinentryQuality.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\PinentryRuntime.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\PinentryTypes.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\OwnerIcon.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\SecureString.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Platform\WindowsHello.h">
+      <Filter>Platform</Filter>
+    </ClInclude>
+    <ClInclude Include="Compat\unistd.h">
+      <Filter>Compat</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="XamlPreamble.h" />
+    <ClInclude Include="XamlGluePreamble.h" />
+    <ClInclude Include="App.xaml.h" />
+    <ClInclude Include="Compat\config.h" />
+    <ClInclude Include="Compat\unistd.h" />
+    <ClInclude Include="Core\PinentryHandler.h" />
+    <ClInclude Include="Core\PinentryMapper.h" />
+    <ClInclude Include="Core\PinentryQuality.h" />
+    <ClInclude Include="Core\PinentryRuntime.h" />
+    <ClInclude Include="Core\PinentryTypes.h" />
+    <ClInclude Include="Platform\CredentialStore.h" />
+    <ClInclude Include="Platform\OwnerIcon.h" />
+    <ClInclude Include="Platform\SecureString.h" />
+    <ClInclude Include="Platform\WindowsHello.h" />
+    <ClInclude Include="PinentryDialog.xaml.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Core\PinentryMapper.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\PinentryQuality.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\PinentryRuntime.cpp">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\OwnerIcon.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="Platform\WindowsHello.cpp">
+      <Filter>Platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pinentry\password-cache.c">
+      <Filter>Shared C Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pinentry\pinentry-curses.c">
+      <Filter>Shared C Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pinentry\pinentry-emacs.c">
+      <Filter>Shared C Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pinentry\pinentry.c">
+      <Filter>Shared C Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\secmem\util.c">
+      <Filter>Shared C Core</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="App.xaml.cpp" />
+    <ClCompile Include="Core\PinentryHandler.cpp" />
+    <ClCompile Include="Core\PinentryMapper.cpp" />
+    <ClCompile Include="Core\PinentryQuality.cpp" />
+    <ClCompile Include="Core\PinentryRuntime.cpp" />
+    <ClCompile Include="Platform\CredentialStore.cpp" />
+    <ClCompile Include="Platform\OwnerIcon.cpp" />
+    <ClCompile Include="Platform\WindowsHello.cpp" />
+    <ClCompile Include="PinentryDialog.xaml.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pinentry\argparse.c" />
+    <ClCompile Include="..\pinentry\password-cache.c" />
+    <ClCompile Include="..\pinentry\pinentry.c" />
+    <ClCompile Include="..\secmem\secmem.c" />
+    <ClCompile Include="..\secmem\util.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="PinentryDialog.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PinentryWinUI3.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="App.idl" />
+    <Midl Include="PinentryDialog.idl" />
+  </ItemGroup>
+</Project>
