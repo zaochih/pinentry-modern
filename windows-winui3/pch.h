@@ -28,6 +28,8 @@
 #include <condition_variable>
 #include <cstdint>
 #include <cwchar>
+#include <cwctype>
+#include <fstream>
 #include <functional>
 #include <future>
 #include <map>

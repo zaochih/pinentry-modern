@@ -370,6 +370,7 @@ namespace PinentryWinUI3::Core
         dialog.automaticWindowsHelloPrompt = payload.automaticWindowsHelloPrompt;
         dialog.automaticCredentialTarget = payload.automaticCredentialTarget;
         dialog.timeoutSeconds = payload.timeoutSeconds;
+        dialog.iconSource.ownerPID = payload.ownerPID;
         dialog.pinentryPointer = payload.pinentryPointer;
 
         if (!iconPath.empty())
@@ -380,7 +381,6 @@ namespace PinentryWinUI3::Core
         else if (payload.ownerPID > 1)
         {
             dialog.iconSource.kind = IconSourceKind::OwnerProcessID;
-            dialog.iconSource.ownerPID = payload.ownerPID;
         }
 
         return dialog;

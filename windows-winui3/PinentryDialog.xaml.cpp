@@ -231,6 +231,8 @@ namespace winrt::PinentryWinUI3::implementation
         TitleText().Text(H(dialog_.title));
         MessageText().Text(H(dialog_.message));
         MessageText().Visibility(VisibleIf(!dialog_.message.empty()));
+        SourceNameText().Text(H(dialog_.sourceApplicationName));
+        SourceNameText().Visibility(VisibleIf(!dialog_.sourceApplicationName.empty()));
 
         ErrorText().Text(H(dialog_.errorText));
         ErrorBorder().Visibility(VisibleIf(!dialog_.errorText.empty()));
@@ -241,7 +243,7 @@ namespace winrt::PinentryWinUI3::implementation
         ShowTypingCheckBox().Visibility(VisibleIf(isPassphrase && dialog_.showTypingToggleAvailable));
         SaveCredentialCheckBox().Visibility(VisibleIf(isPassphrase && dialog_.canUseCredentialManager));
 
-        PromptText().Text(H(dialog_.promptText.empty() ? L"Passphrase" : dialog_.promptText));
+        auto const promptText = H(dialog_.promptText.empty() ? L"Passphrase" : dialog_.promptText);
         RepeatPassphraseBox().PlaceholderText(L"Confirm passphrase");
         RepeatPassphraseBox().Visibility(VisibleIf(dialog_.showsRepeatField));
 
@@ -254,8 +256,8 @@ namespace winrt::PinentryWinUI3::implementation
         PrimaryButton().Content(box_value(H(dialog_.okText)));
         UpdateActionButtonLayout();
 
-        PassphraseBox().PlaceholderText(PromptText().Text());
-        VisiblePassphraseBox().PlaceholderText(PromptText().Text());
+        PassphraseBox().PlaceholderText(promptText);
+        VisiblePassphraseBox().PlaceholderText(promptText);
         UpdateIcon();
         UpdatePassphraseMirror();
         UpdateValidation();
@@ -461,13 +463,23 @@ namespace winrt::PinentryWinUI3::implementation
     void PinentryDialog::UpdateIcon()
     {
         std::wstring iconPath;
+        ::PinentryWinUI3::Platform::OwnerApplicationInfo ownerInfo;
+        OutputDebugStringW((L"[pinentry-winui3 owner] dialog owner pid: " + std::to_wstring(dialog_.iconSource.ownerPID) + L"\n").c_str());
+        ownerInfo = ::PinentryWinUI3::Platform::ResolveOwnerApplicationInfo(dialog_.iconSource.ownerPID);
+        if (!ownerInfo.displayName.empty())
+        {
+            dialog_.sourceApplicationName = ownerInfo.displayName;
+            SourceNameText().Text(H(dialog_.sourceApplicationName));
+            SourceNameText().Visibility(Visibility::Visible);
+        }
+
         if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::FilePath)
         {
             iconPath = dialog_.iconSource.filePath;
         }
-        else if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::OwnerProcessID)
+        else if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::OwnerProcessID || !ownerInfo.iconPath.empty())
         {
-            iconPath = ::PinentryWinUI3::Platform::ResolveIconPathForOwner(dialog_.iconSource.ownerPID);
+            iconPath = ownerInfo.iconPath;
         }
 
         if (iconPath.empty())

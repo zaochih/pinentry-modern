@@ -79,6 +79,7 @@ namespace PinentryWinUI3::Core
         std::wstring automaticCredentialTarget;
         int timeoutSeconds = 0;
         IconSource iconSource;
+        std::wstring sourceApplicationName;
         void* pinentryPointer = nullptr;
     };
 
@@ -94,4 +95,3 @@ namespace PinentryWinUI3::Core
         bool credentialStoreUnusable = false;
     };
 }
-

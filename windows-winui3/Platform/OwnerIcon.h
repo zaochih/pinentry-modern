@@ -4,7 +4,13 @@
 
 namespace PinentryWinUI3::Platform
 {
-    std::wstring ResolveProcessImagePath(unsigned long processID);
-    std::wstring ResolveIconPathForOwner(unsigned long processID);
-}
+    struct OwnerApplicationInfo
+    {
+        std::wstring imagePath;
+        std::wstring iconPath;
+        std::wstring displayName;
+    };
 
+    std::wstring ResolveProcessImagePath(unsigned long processID);
+    OwnerApplicationInfo ResolveOwnerApplicationInfo(unsigned long processID);
+}
