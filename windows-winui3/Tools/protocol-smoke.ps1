@@ -23,6 +23,30 @@ try {
     $banner = $process.StandardOutput.ReadLine()
     Write-Host "server: $banner"
 
+    function Get-QualityScore {
+        param([string]$Passphrase)
+
+        if ([string]::IsNullOrEmpty($Passphrase)) {
+            return 0
+        }
+
+        $score = [Math]::Min(100, $Passphrase.Length * 8)
+        if ($Passphrase -match '[a-z]') {
+            $score += 10
+        }
+        if ($Passphrase -match '[A-Z]') {
+            $score += 10
+        }
+        if ($Passphrase -match '\d') {
+            $score += 10
+        }
+        if ($Passphrase -match '[^a-zA-Z0-9]') {
+            $score += 10
+        }
+
+        return [Math]::Min(100, $score)
+    }
+
     $commands = @(
         "OPTION allow-external-password-cache",
         "SETTITLE Unlock Secret Key",
@@ -47,6 +71,14 @@ try {
                 break
             }
             Write-Host "server: $line"
+            if ($line -match '^INQUIRE QUALITY ?(.*)$') {
+                $score = Get-QualityScore $Matches[1]
+                Write-Host "client: D $score"
+                $process.StandardInput.WriteLine("D $score")
+                Write-Host "client: END"
+                $process.StandardInput.WriteLine("END")
+                $process.StandardInput.Flush()
+            }
         } while ($line -notmatch "^(OK|ERR|D )")
     }
 }
@@ -56,4 +88,3 @@ finally {
     }
     $process.Dispose()
 }
-

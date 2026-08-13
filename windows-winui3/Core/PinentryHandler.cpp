@@ -110,9 +110,11 @@ namespace
                 dialog,
                 [waitState, windowHolder](DialogResponse response)
                 {
-                    std::scoped_lock lock(waitState->mutex);
-                    waitState->response = std::move(response);
-                    waitState->completed = true;
+                    {
+                        std::scoped_lock lock(waitState->mutex);
+                        waitState->response = std::move(response);
+                        waitState->completed = true;
+                    }
                     waitState->condition.notify_one();
                 });
             windowHolder->Activate();

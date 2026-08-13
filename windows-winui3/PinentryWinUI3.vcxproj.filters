@@ -128,6 +128,9 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="PinentryDialog.xaml" />
+    <Page Include="Styles\Win10ControlStyles.xaml">
+      <Filter>UI</Filter>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="PinentryWinUI3.rc" />

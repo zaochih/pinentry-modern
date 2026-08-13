@@ -169,6 +169,9 @@
     <Midl Include="PinentryDialog.idl" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\Win10ControlStyles.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="PinentryWinUI3.rc" />
   </ItemGroup>
   <ItemGroup>

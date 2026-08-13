@@ -29,8 +29,9 @@ namespace winrt::PinentryWinUI3::implementation
         void ShowWindowAfterInitialLayout();
         void DisableResize();
         void HideFromTaskbar();
-        void PreferRoundedCorners();
         void TuneWindowFrame();
+        void ApplyWindows10DialogAdjustments();
+        bool UsesWindows10DialogStyle() const;
         void Populate();
         void Resolve(::PinentryWinUI3::Core::DialogResponse response);
         void UpdatePassphraseMirror();

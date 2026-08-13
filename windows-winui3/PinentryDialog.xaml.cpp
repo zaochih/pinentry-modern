@@ -14,11 +14,14 @@ using namespace winrt;
 using namespace winrt::Microsoft::UI::Windowing;
 using namespace winrt::Microsoft::UI::Xaml;
 using namespace winrt::Microsoft::UI::Xaml::Controls;
+using namespace winrt::Microsoft::UI::Xaml::Media;
 
 namespace winrt::PinentryWinUI3::implementation
 {
     namespace
     {
+        using RtlGetVersionFn = LONG(WINAPI*)(OSVERSIONINFOW*);
+
         hstring H(std::wstring const& value)
         {
             return hstring(value);
@@ -70,11 +73,64 @@ namespace winrt::PinentryWinUI3::implementation
 
         DWORD constexpr DwmwaUseImmersiveDarkMode = 20;
         COLORREF constexpr DwmwaColorNone = 0xFFFFFFFE;
+
+        DWORD CurrentBuildNumber()
+        {
+            auto const ntdll = GetModuleHandleW(L"ntdll.dll");
+            if (!ntdll)
+            {
+                return 0;
+            }
+
+            auto const rtlGetVersion = reinterpret_cast<RtlGetVersionFn>(
+                GetProcAddress(ntdll, "RtlGetVersion"));
+            if (!rtlGetVersion)
+            {
+                return 0;
+            }
+
+            OSVERSIONINFOW version = {};
+            version.dwOSVersionInfoSize = sizeof(version);
+            if (rtlGetVersion(&version) != 0)
+            {
+                return 0;
+            }
+
+            return version.dwBuildNumber;
+        }
+
+        bool ShouldUseWindows10Styles()
+        {
+            DWORD const buildNumber = CurrentBuildNumber();
+            return buildNumber >= 10240 && buildNumber < 21996;
+        }
+
+        bool ShouldUseDarkAppTheme()
+        {
+            DWORD appsUseLightTheme = 1;
+            DWORD valueSize = sizeof(appsUseLightTheme);
+            DWORD valueType = 0;
+            LSTATUS const status = RegGetValueW(
+                HKEY_CURRENT_USER,
+                L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+                L"AppsUseLightTheme",
+                RRF_RT_REG_DWORD,
+                &valueType,
+                &appsUseLightTheme,
+                &valueSize);
+            return status == ERROR_SUCCESS && appsUseLightTheme == 0;
+        }
+
+        SolidColorBrush Brush(BYTE red, BYTE green, BYTE blue)
+        {
+            return SolidColorBrush{ winrt::Windows::UI::ColorHelper::FromArgb(0xFF, red, green, blue) };
+        }
     }
 
     PinentryDialog::PinentryDialog()
     {
         InitializeComponent();
+        ApplyWindows10DialogAdjustments();
         InitializeDialogWindow();
     }
 
@@ -84,11 +140,13 @@ namespace winrt::PinentryWinUI3::implementation
         : dialog_(std::move(dialog)), onResolve_(std::move(onResolve))
     {
         InitializeComponent();
+        ApplyWindows10DialogAdjustments();
         InitializeDialogWindow();
         Closed([weak = get_weak()](winrt::Windows::Foundation::IInspectable const&, WindowEventArgs const&)
         {
             if (auto self = weak.get())
             {
+                ::PinentryWinUI3::Platform::Trace(L"dialog", L"closed event");
                 ::PinentryWinUI3::Core::DialogResponse response;
                 response.canceled = true;
                 self->Resolve(std::move(response));
@@ -112,7 +170,6 @@ namespace winrt::PinentryWinUI3::implementation
                 self->HideFromTaskbar();
                 self->FitWindowToContent();
                 self->DisableResize();
-                self->PreferRoundedCorners();
                 self->TuneWindowFrame();
                 self->FocusInitialControl();
                 self->ShowWindowAfterInitialLayout();
@@ -139,7 +196,6 @@ namespace winrt::PinentryWinUI3::implementation
             {
                 self->HideFromTaskbar();
                 self->DisableResize();
-                self->PreferRoundedCorners();
                 self->TuneWindowFrame();
             }
         });
@@ -249,22 +305,6 @@ namespace winrt::PinentryWinUI3::implementation
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
     }
 
-    void PinentryDialog::PreferRoundedCorners()
-    {
-        HWND hwnd = NativeWindowHandle();
-        if (!hwnd)
-        {
-            return;
-        }
-
-        DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
-        DwmSetWindowAttribute(
-            hwnd,
-            DWMWA_WINDOW_CORNER_PREFERENCE,
-            &preference,
-            sizeof(preference));
-    }
-
     void PinentryDialog::TuneWindowFrame()
     {
         HWND hwnd = NativeWindowHandle();
@@ -288,6 +328,52 @@ namespace winrt::PinentryWinUI3::implementation
             sizeof(borderColor));
     }
 
+    bool PinentryDialog::UsesWindows10DialogStyle() const
+    {
+        return ShouldUseWindows10Styles();
+    }
+
+    void PinentryDialog::ApplyWindows10DialogAdjustments()
+    {
+        if (!UsesWindows10DialogStyle())
+        {
+            return;
+        }
+
+        bool const useDarkTheme = ShouldUseDarkAppTheme();
+        auto const backgroundBrush = useDarkTheme ? Brush(0x1F, 0x1F, 0x1F) : Brush(0xE6, 0xE6, 0xE6);
+        auto const headerBrush = Brush(0xFF, 0xD3, 0x5C);
+        auto const headerTextBrush = Brush(0x11, 0x11, 0x11);
+        auto const primaryTextBrush = useDarkTheme ? Brush(0xFF, 0xFF, 0xFF) : Brush(0x11, 0x11, 0x11);
+        auto const secondaryTextBrush = useDarkTheme ? Brush(0xCF, 0xCF, 0xCF) : Brush(0x5E, 0x5E, 0x5E);
+
+        RootGrid().RequestedTheme(useDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
+        RootGrid().Background(backgroundBrush);
+        HeaderTitleBarGrid().Background(headerBrush);
+        HeaderContentBorder().Background(headerBrush);
+        ContentPanel().Background(backgroundBrush);
+        FooterBorder().Background(backgroundBrush);
+
+        WindowCaptionText().Foreground(headerTextBrush);
+        CloseGlyph().Foreground(headerTextBrush);
+        TitleText().Foreground(headerTextBrush);
+        SourceNameText().Foreground(primaryTextBrush);
+        MessageText().Foreground(primaryTextBrush);
+        QualityTitleText().Foreground(primaryTextBrush);
+        QualityText().Foreground(secondaryTextBrush);
+        TimeoutText().Foreground(secondaryTextBrush);
+
+        SourceInfoGrid().ColumnSpacing(0);
+        SourceIconColumn().Width(GridLengthHelper::FromPixels(0));
+        SourceIconHost().Visibility(Visibility::Collapsed);
+        DefaultIcon().Visibility(Visibility::Collapsed);
+        DialogIconImage().Visibility(Visibility::Collapsed);
+
+        ::PinentryWinUI3::Platform::Trace(
+            L"dialog",
+            std::wstring(L"windows 10 dialog adjustments applied, dark=") + (useDarkTheme ? L"true" : L"false"));
+    }
+
     void PinentryDialog::Populate()
     {
         Title(H(dialog_.title));
@@ -297,6 +383,7 @@ namespace winrt::PinentryWinUI3::implementation
         MessageText().Visibility(VisibleIf(!dialog_.message.empty()));
         SourceNameText().Text(H(dialog_.sourceApplicationName));
         SourceNameText().Visibility(VisibleIf(!dialog_.sourceApplicationName.empty()));
+        SourceInfoGrid().Visibility(VisibleIf(!dialog_.sourceApplicationName.empty() || !UsesWindows10DialogStyle()));
 
         ErrorText().Text(H(dialog_.errorText));
         ErrorBorder().Visibility(VisibleIf(!dialog_.errorText.empty()));
@@ -381,12 +468,14 @@ namespace winrt::PinentryWinUI3::implementation
             timeoutTimer_.Stop();
         }
 
+        ::PinentryWinUI3::Platform::Trace(L"dialog", L"resolving dialog");
         auto callback = std::move(onResolve_);
-        Close();
         if (callback)
         {
             callback(std::move(response));
         }
+        ::PinentryWinUI3::Platform::Trace(L"dialog", L"closing dialog");
+        Close();
     }
 
     std::wstring PinentryDialog::CurrentPassphrase()
@@ -540,6 +629,16 @@ namespace winrt::PinentryWinUI3::implementation
             dialog_.sourceApplicationName = ownerInfo.displayName;
             SourceNameText().Text(H(dialog_.sourceApplicationName));
             SourceNameText().Visibility(Visibility::Visible);
+            SourceInfoGrid().Visibility(Visibility::Visible);
+        }
+
+        if (UsesWindows10DialogStyle())
+        {
+            SourceIconHost().Visibility(Visibility::Collapsed);
+            DefaultIcon().Visibility(Visibility::Collapsed);
+            DialogIconImage().Visibility(Visibility::Collapsed);
+            SourceInfoGrid().Visibility(VisibleIf(!dialog_.sourceApplicationName.empty()));
+            return;
         }
 
         if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::FilePath)

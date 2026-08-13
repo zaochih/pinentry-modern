@@ -9,6 +9,10 @@ namespace winrt::PinentryWinUI3::implementation
     {
         App();
         void OnLaunched(winrt::Microsoft::UI::Xaml::LaunchActivatedEventArgs const& args);
+
+    private:
+        void ApplyPlatformStyles();
+        void ApplyWindows10ThemeResources(bool useDarkTheme);
     };
 }
 
