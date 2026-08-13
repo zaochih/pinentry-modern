@@ -37,6 +37,89 @@ namespace PinentryWinUI3::Platform
             tempPath.resize(length);
             return tempPath + L"pinentry-winui3-owner-trace.log";
         }
+
+        std::wstring ModuleDirectoryTracePath()
+        {
+            std::wstring modulePath(32768, L'\0');
+            DWORD const length = GetModuleFileNameW(
+                nullptr,
+                modulePath.data(),
+                static_cast<DWORD>(modulePath.size()));
+            if (length == 0 || length >= modulePath.size())
+            {
+                return {};
+            }
+
+            modulePath.resize(length);
+            auto const separator = modulePath.find_last_of(L"\\/");
+            if (separator == std::wstring::npos)
+            {
+                return {};
+            }
+
+            return modulePath.substr(0, separator + 1) + L"pinentry-winui3-owner-trace.log";
+        }
+
+        bool AppendTraceLine(std::wstring const& path, std::wstring const& line)
+        {
+            if (path.empty())
+            {
+                return false;
+            }
+
+            std::string utf8;
+            int const utf8Length = WideCharToMultiByte(
+                CP_UTF8,
+                0,
+                line.c_str(),
+                static_cast<int>(line.size()),
+                nullptr,
+                0,
+                nullptr,
+                nullptr);
+            if (utf8Length <= 0)
+            {
+                return false;
+            }
+
+            utf8.resize(static_cast<size_t>(utf8Length));
+            int const writtenLength = WideCharToMultiByte(
+                CP_UTF8,
+                0,
+                line.c_str(),
+                static_cast<int>(line.size()),
+                utf8.data(),
+                utf8Length,
+                nullptr,
+                nullptr);
+            if (writtenLength <= 0)
+            {
+                return false;
+            }
+
+            HANDLE file = CreateFileW(
+                path.c_str(),
+                FILE_APPEND_DATA,
+                FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+                nullptr,
+                OPEN_ALWAYS,
+                FILE_ATTRIBUTE_NORMAL,
+                nullptr);
+            if (file == INVALID_HANDLE_VALUE)
+            {
+                return false;
+            }
+
+            DWORD bytesWritten = 0;
+            BOOL const ok = WriteFile(
+                file,
+                utf8.data(),
+                static_cast<DWORD>(utf8.size()),
+                &bytesWritten,
+                nullptr);
+            CloseHandle(file);
+            return ok && bytesWritten == utf8.size();
+        }
     }
 
     void ClearTraceLog()
@@ -45,6 +128,12 @@ namespace PinentryWinUI3::Platform
         if (!path.empty())
         {
             DeleteFileW(path.c_str());
+        }
+
+        auto const modulePath = ModuleDirectoryTracePath();
+        if (!modulePath.empty() && modulePath != path)
+        {
+            DeleteFileW(modulePath.c_str());
         }
     }
 
@@ -64,10 +153,9 @@ namespace PinentryWinUI3::Platform
             return;
         }
 
-        std::wofstream log(path, std::ios::app);
-        if (log)
+        if (!AppendTraceLine(path, line))
         {
-            log << line;
+            AppendTraceLine(ModuleDirectoryTracePath(), line);
         }
     }
 }

@@ -169,10 +169,6 @@
     <Midl Include="PinentryDialog.idl" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CppWinRT" Version="2.0.240405.15" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.240923002" />
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="PinentryWinUI3.rc" />
   </ItemGroup>
   <ItemGroup>
