@@ -134,7 +134,7 @@ namespace winrt::PinentryWinUI3::implementation
             if (useDarkTheme)
             {
                 dictionary.Insert(box_value(L"PinentryDialogBackgroundBrush"), box_value(Brush(0x1F, 0x1F, 0x1F)));
-                dictionary.Insert(box_value(L"PinentryDialogHeaderBackgroundBrush"), box_value(Brush(0xFF, 0xD3, 0x5C)));
+                dictionary.Insert(box_value(L"PinentryDialogHeaderBackgroundBrush"), box_value(Brush(0x76, 0xB9, 0xED)));
                 dictionary.Insert(box_value(L"PinentryDialogFooterBackgroundBrush"), box_value(Brush(0x1F, 0x1F, 0x1F)));
                 dictionary.Insert(box_value(L"PinentryDialogHeaderTextBrush"), box_value(Brush(0x11, 0x11, 0x11)));
                 dictionary.Insert(box_value(L"PinentryDialogPrimaryTextBrush"), box_value(Brush(0xFF, 0xFF, 0xFF)));
@@ -169,7 +169,7 @@ namespace winrt::PinentryWinUI3::implementation
             else
             {
                 dictionary.Insert(box_value(L"PinentryDialogBackgroundBrush"), box_value(Brush(0xE6, 0xE6, 0xE6)));
-                dictionary.Insert(box_value(L"PinentryDialogHeaderBackgroundBrush"), box_value(Brush(0xFF, 0xD3, 0x5C)));
+                dictionary.Insert(box_value(L"PinentryDialogHeaderBackgroundBrush"), box_value(Brush(0x76, 0xB9, 0xED)));
                 dictionary.Insert(box_value(L"PinentryDialogFooterBackgroundBrush"), box_value(Brush(0xE6, 0xE6, 0xE6)));
                 dictionary.Insert(box_value(L"PinentryDialogHeaderTextBrush"), box_value(Brush(0x11, 0x11, 0x11)));
                 dictionary.Insert(box_value(L"PinentryDialogPrimaryTextBrush"), box_value(Brush(0x11, 0x11, 0x11)));

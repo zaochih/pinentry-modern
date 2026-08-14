@@ -9,7 +9,7 @@
             <SolidColorBrush x:Key="PinentryWin10ButtonBackgroundPointerOverBrush" Color="#B8B8B8" />
             <SolidColorBrush x:Key="PinentryWin10ButtonBackgroundPressedBrush" Color="#A8A8A8" />
             <SolidColorBrush x:Key="PinentryDialogBackgroundBrush" Color="#E6E6E6" />
-            <SolidColorBrush x:Key="PinentryDialogHeaderBackgroundBrush" Color="#FFD35C" />
+            <SolidColorBrush x:Key="PinentryDialogHeaderBackgroundBrush" Color="#76B9ED" />
             <SolidColorBrush x:Key="PinentryDialogFooterBackgroundBrush" Color="#E6E6E6" />
             <SolidColorBrush x:Key="PinentryDialogHeaderTextBrush" Color="#111111" />
             <SolidColorBrush x:Key="PinentryDialogPrimaryTextBrush" Color="#111111" />
@@ -50,7 +50,7 @@
             <SolidColorBrush x:Key="PinentryWin10ButtonBackgroundPointerOverBrush" Color="#4C4C4C" />
             <SolidColorBrush x:Key="PinentryWin10ButtonBackgroundPressedBrush" Color="#404040" />
             <SolidColorBrush x:Key="PinentryDialogBackgroundBrush" Color="#1F1F1F" />
-            <SolidColorBrush x:Key="PinentryDialogHeaderBackgroundBrush" Color="#FFD35C" />
+            <SolidColorBrush x:Key="PinentryDialogHeaderBackgroundBrush" Color="#76B9ED" />
             <SolidColorBrush x:Key="PinentryDialogFooterBackgroundBrush" Color="#1F1F1F" />
             <SolidColorBrush x:Key="PinentryDialogHeaderTextBrush" Color="#111111" />
             <SolidColorBrush x:Key="PinentryDialogPrimaryTextBrush" Color="#FFFFFF" />

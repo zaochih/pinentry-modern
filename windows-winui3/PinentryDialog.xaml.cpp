@@ -14,13 +14,19 @@ using namespace winrt;
 using namespace winrt::Microsoft::UI::Windowing;
 using namespace winrt::Microsoft::UI::Xaml;
 using namespace winrt::Microsoft::UI::Xaml::Controls;
+using namespace winrt::Microsoft::UI::Xaml::Input;
 using namespace winrt::Microsoft::UI::Xaml::Media;
+using namespace winrt::Windows::System;
+using namespace winrt::Windows::UI::ViewManagement;
 
 namespace winrt::PinentryWinUI3::implementation
 {
     namespace
     {
         using RtlGetVersionFn = LONG(WINAPI*)(OSVERSIONINFOW*);
+        BYTE constexpr HeaderAccentRed = 0x76;
+        BYTE constexpr HeaderAccentGreen = 0xB9;
+        BYTE constexpr HeaderAccentBlue = 0xED;
 
         hstring H(std::wstring const& value)
         {
@@ -63,6 +69,16 @@ namespace winrt::PinentryWinUI3::implementation
                 path = L"/" + path;
             }
             return winrt::Windows::Foundation::Uri(L"file://" + path);
+        }
+
+        double DialogContentWidth()
+        {
+            return 450.0;
+        }
+
+        double DialogBorderThickness()
+        {
+            return 1.0;
         }
 
         int DipsToPhysicalPixels(double dips, UINT dpi)
@@ -125,12 +141,96 @@ namespace winrt::PinentryWinUI3::implementation
         {
             return SolidColorBrush{ winrt::Windows::UI::ColorHelper::FromArgb(0xFF, red, green, blue) };
         }
+
+        void InsertBrush(ResourceDictionary const& dictionary, wchar_t const* key, BYTE red, BYTE green, BYTE blue)
+        {
+            dictionary.Insert(box_value(key), box_value(Brush(red, green, blue)));
+        }
+
+        void ApplyWindows10ResourceOverrides(ResourceDictionary const& dictionary, bool useDarkTheme)
+        {
+            InsertBrush(dictionary, L"PinentryDialogHeaderBackgroundBrush", HeaderAccentRed, HeaderAccentGreen, HeaderAccentBlue);
+            InsertBrush(dictionary, L"PinentryDialogHeaderTextBrush", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"PinentryWin10ControlBorderBrush", 0x99, 0x99, 0x99);
+            InsertBrush(dictionary, L"PinentryDialogAccentBrush", HeaderAccentRed, HeaderAccentGreen, HeaderAccentBlue);
+
+            if (useDarkTheme)
+            {
+                InsertBrush(dictionary, L"PinentryDialogBackgroundBrush", 0x1F, 0x1F, 0x1F);
+                InsertBrush(dictionary, L"PinentryDialogFooterBackgroundBrush", 0x1F, 0x1F, 0x1F);
+                InsertBrush(dictionary, L"PinentryDialogPrimaryTextBrush", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"PinentryDialogSecondaryTextBrush", 0xCF, 0xCF, 0xCF);
+                InsertBrush(dictionary, L"PinentryWin10ButtonBackgroundBrush", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"PinentryWin10ButtonBackgroundPointerOverBrush", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"PinentryWin10ButtonBackgroundPressedBrush", 0x40, 0x40, 0x40);
+                InsertBrush(dictionary, L"PinentryWin10ButtonHoverBorderBrush", 0x94, 0x94, 0x94);
+                InsertBrush(dictionary, L"PinentryWin10ButtonFocusBorderBrush", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"ButtonBackground", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"ButtonBackgroundPointerOver", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"ButtonBackgroundPressed", 0x40, 0x40, 0x40);
+                InsertBrush(dictionary, L"ButtonBorderBrush", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"ButtonBorderBrushPointerOver", 0x94, 0x94, 0x94);
+                InsertBrush(dictionary, L"ButtonBorderBrushPressed", 0x40, 0x40, 0x40);
+                InsertBrush(dictionary, L"ButtonForeground", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"ButtonForegroundPointerOver", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"ButtonForegroundPressed", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"AccentButtonBackground", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"AccentButtonBackgroundPointerOver", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"AccentButtonBackgroundPressed", 0x40, 0x40, 0x40);
+                InsertBrush(dictionary, L"AccentButtonBorderBrush", 0x4C, 0x4C, 0x4C);
+                InsertBrush(dictionary, L"AccentButtonBorderBrushPointerOver", 0x94, 0x94, 0x94);
+                InsertBrush(dictionary, L"AccentButtonBorderBrushPressed", 0x40, 0x40, 0x40);
+                InsertBrush(dictionary, L"AccentButtonForeground", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"AccentButtonForegroundPointerOver", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"AccentButtonForegroundPressed", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"SystemControlFocusVisualPrimaryBrush", 0xFF, 0xFF, 0xFF);
+                InsertBrush(dictionary, L"SystemControlFocusVisualSecondaryBrush", 0x1F, 0x1F, 0x1F);
+                return;
+            }
+
+            InsertBrush(dictionary, L"PinentryDialogBackgroundBrush", 0xE6, 0xE6, 0xE6);
+            InsertBrush(dictionary, L"PinentryDialogFooterBackgroundBrush", 0xE6, 0xE6, 0xE6);
+            InsertBrush(dictionary, L"PinentryDialogPrimaryTextBrush", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"PinentryDialogSecondaryTextBrush", 0x5E, 0x5E, 0x5E);
+            InsertBrush(dictionary, L"PinentryWin10ButtonBackgroundBrush", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"PinentryWin10ButtonBackgroundPointerOverBrush", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"PinentryWin10ButtonBackgroundPressedBrush", 0xA8, 0xA8, 0xA8);
+            InsertBrush(dictionary, L"PinentryWin10ButtonHoverBorderBrush", 0x6E, 0x6E, 0x6E);
+            InsertBrush(dictionary, L"PinentryWin10ButtonFocusBorderBrush", 0x00, 0x00, 0x00);
+            InsertBrush(dictionary, L"ButtonBackground", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"ButtonBackgroundPointerOver", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"ButtonBackgroundPressed", 0xA8, 0xA8, 0xA8);
+            InsertBrush(dictionary, L"ButtonBorderBrush", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"ButtonBorderBrushPointerOver", 0x6E, 0x6E, 0x6E);
+            InsertBrush(dictionary, L"ButtonBorderBrushPressed", 0xA8, 0xA8, 0xA8);
+            InsertBrush(dictionary, L"ButtonForeground", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"ButtonForegroundPointerOver", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"ButtonForegroundPressed", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"AccentButtonBackground", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"AccentButtonBackgroundPointerOver", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"AccentButtonBackgroundPressed", 0xA8, 0xA8, 0xA8);
+            InsertBrush(dictionary, L"AccentButtonBorderBrush", 0xB8, 0xB8, 0xB8);
+            InsertBrush(dictionary, L"AccentButtonBorderBrushPointerOver", 0x6E, 0x6E, 0x6E);
+            InsertBrush(dictionary, L"AccentButtonBorderBrushPressed", 0xA8, 0xA8, 0xA8);
+            InsertBrush(dictionary, L"AccentButtonForeground", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"AccentButtonForegroundPointerOver", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"AccentButtonForegroundPressed", 0x11, 0x11, 0x11);
+            InsertBrush(dictionary, L"SystemControlFocusVisualPrimaryBrush", 0x00, 0x00, 0x00);
+            InsertBrush(dictionary, L"SystemControlFocusVisualSecondaryBrush", 0xE6, 0xE6, 0xE6);
+        }
+
+        SolidColorBrush AccentBrush()
+        {
+            return SolidColorBrush{ UISettings().GetColorValue(UIColorType::Accent) };
+        }
+
     }
 
     PinentryDialog::PinentryDialog()
     {
         InitializeComponent();
         ApplyWindows10DialogAdjustments();
+        RegisterWindows10ThemeListener();
         InitializeDialogWindow();
     }
 
@@ -141,12 +241,14 @@ namespace winrt::PinentryWinUI3::implementation
     {
         InitializeComponent();
         ApplyWindows10DialogAdjustments();
+        RegisterWindows10ThemeListener();
         InitializeDialogWindow();
         Closed([weak = get_weak()](winrt::Windows::Foundation::IInspectable const&, WindowEventArgs const&)
         {
             if (auto self = weak.get())
             {
                 ::PinentryWinUI3::Platform::Trace(L"dialog", L"closed event");
+                self->UnregisterWindows10ThemeListener();
                 ::PinentryWinUI3::Core::DialogResponse response;
                 response.canceled = true;
                 self->Resolve(std::move(response));
@@ -320,7 +422,7 @@ namespace winrt::PinentryWinUI3::implementation
             &darkFrame,
             sizeof(darkFrame));
 
-        COLORREF const borderColor = darkFrame ? DwmwaColorNone : RGB(0xD0, 0xD0, 0xD0);
+        COLORREF const borderColor = UsesWindows10DialogStyle() || darkFrame ? DwmwaColorNone : RGB(0xD0, 0xD0, 0xD0);
         DwmSetWindowAttribute(
             hwnd,
             DWMWA_BORDER_COLOR,
@@ -341,13 +443,33 @@ namespace winrt::PinentryWinUI3::implementation
         }
 
         bool const useDarkTheme = ShouldUseDarkAppTheme();
+        windows10DarkTheme_ = useDarkTheme;
+        auto appResources = Application::Current().Resources();
+        ApplyWindows10ResourceOverrides(appResources, useDarkTheme);
+        auto themeDictionaries = appResources.ThemeDictionaries();
+        if (auto light = themeDictionaries.Lookup(box_value(L"Light")).try_as<ResourceDictionary>())
+        {
+            ApplyWindows10ResourceOverrides(light, useDarkTheme);
+        }
+        if (auto dark = themeDictionaries.Lookup(box_value(L"Dark")).try_as<ResourceDictionary>())
+        {
+            ApplyWindows10ResourceOverrides(dark, useDarkTheme);
+        }
+
         auto const backgroundBrush = useDarkTheme ? Brush(0x1F, 0x1F, 0x1F) : Brush(0xE6, 0xE6, 0xE6);
-        auto const headerBrush = Brush(0xFF, 0xD3, 0x5C);
+        auto const headerBrush = Brush(HeaderAccentRed, HeaderAccentGreen, HeaderAccentBlue);
         auto const headerTextBrush = Brush(0x11, 0x11, 0x11);
         auto const primaryTextBrush = useDarkTheme ? Brush(0xFF, 0xFF, 0xFF) : Brush(0x11, 0x11, 0x11);
         auto const secondaryTextBrush = useDarkTheme ? Brush(0xCF, 0xCF, 0xCF) : Brush(0x5E, 0x5E, 0x5E);
-
         RootGrid().RequestedTheme(useDarkTheme ? ElementTheme::Dark : ElementTheme::Light);
+        double const borderThickness = DialogBorderThickness();
+        WindowFrameRoot().Width(DialogContentWidth() + (borderThickness * 2.0));
+        WindowAccentBorder().Margin({ 0.0, 0.0, 0.0, 0.0 });
+        WindowAccentBorder().Width(DialogContentWidth() + (borderThickness * 2.0));
+        WindowAccentBorder().BorderBrush(AccentBrush());
+        WindowAccentBorder().BorderThickness({ borderThickness, borderThickness, borderThickness, borderThickness });
+        WindowAccentBorder().Background(backgroundBrush);
+        WindowFrameRoot().Background(backgroundBrush);
         RootGrid().Background(backgroundBrush);
         HeaderTitleBarGrid().Background(headerBrush);
         HeaderContentBorder().Background(headerBrush);
@@ -362,16 +484,84 @@ namespace winrt::PinentryWinUI3::implementation
         QualityTitleText().Foreground(primaryTextBrush);
         QualityText().Foreground(secondaryTextBrush);
         TimeoutText().Foreground(secondaryTextBrush);
-
-        SourceInfoGrid().ColumnSpacing(0);
-        SourceIconColumn().Width(GridLengthHelper::FromPixels(0));
-        SourceIconHost().Visibility(Visibility::Collapsed);
-        DefaultIcon().Visibility(Visibility::Collapsed);
-        DialogIconImage().Visibility(Visibility::Collapsed);
+        if (!windows10CloseButtonEventsRegistered_)
+        {
+            CloseButton().PointerEntered({ this, &PinentryDialog::OnCloseButtonPointerEntered });
+            CloseButton().PointerExited({ this, &PinentryDialog::OnCloseButtonPointerExited });
+            windows10CloseButtonEventsRegistered_ = true;
+        }
+        auto closeButtonResources = CloseButton().Resources();
+        InsertBrush(closeButtonResources, L"ButtonBackgroundPointerOver", 0xE8, 0x10, 0x23);
+        InsertBrush(closeButtonResources, L"ButtonBackgroundPressed", 0xE8, 0x10, 0x23);
+        InsertBrush(closeButtonResources, L"ButtonBorderBrushPointerOver", 0xE8, 0x10, 0x23);
+        InsertBrush(closeButtonResources, L"ButtonBorderBrushPressed", 0xE8, 0x10, 0x23);
+        InsertBrush(closeButtonResources, L"ButtonForegroundPointerOver", 0xFF, 0xFF, 0xFF);
+        InsertBrush(closeButtonResources, L"ButtonForegroundPressed", 0xFF, 0xFF, 0xFF);
+        SetWindows10CloseButtonHover(false);
 
         ::PinentryWinUI3::Platform::Trace(
             L"dialog",
             std::wstring(L"windows 10 dialog adjustments applied, dark=") + (useDarkTheme ? L"true" : L"false"));
+    }
+
+    void PinentryDialog::RegisterWindows10ThemeListener()
+    {
+        if (!UsesWindows10DialogStyle() || windows10ThemeListenerRegistered_)
+        {
+            return;
+        }
+
+        windows10ThemeSettings_ = UISettings();
+        windows10ThemeChangedToken_ = windows10ThemeSettings_.ColorValuesChanged(
+            [weak = get_weak()](UISettings const&, winrt::Windows::Foundation::IInspectable const&)
+            {
+                if (auto self = weak.get())
+                {
+                    self->DispatcherQueue().TryEnqueue([weak]
+                    {
+                        if (auto inner = weak.get())
+                        {
+                            bool const useDarkTheme = ShouldUseDarkAppTheme();
+                            inner->ApplyWindows10DialogAdjustments();
+                            inner->TuneWindowFrame();
+                            ::PinentryWinUI3::Platform::Trace(
+                                L"dialog",
+                                std::wstring(L"windows 10 theme refreshed, dark=") + (useDarkTheme ? L"true" : L"false"));
+                        }
+                    });
+                }
+            });
+        windows10ThemeListenerRegistered_ = true;
+    }
+
+    void PinentryDialog::UnregisterWindows10ThemeListener()
+    {
+        if (!windows10ThemeListenerRegistered_ || !windows10ThemeSettings_)
+        {
+            return;
+        }
+
+        windows10ThemeSettings_.ColorValuesChanged(windows10ThemeChangedToken_);
+        windows10ThemeListenerRegistered_ = false;
+        windows10ThemeSettings_ = nullptr;
+    }
+
+    void PinentryDialog::SetWindows10CloseButtonHover(bool hovering)
+    {
+        if (!UsesWindows10DialogStyle())
+        {
+            return;
+        }
+
+        if (hovering)
+        {
+            CloseButton().Background(Brush(0xE8, 0x10, 0x23));
+            CloseGlyph().Foreground(Brush(0xFF, 0xFF, 0xFF));
+            return;
+        }
+
+        CloseButton().Background(SolidColorBrush{ winrt::Windows::UI::Colors::Transparent() });
+        CloseGlyph().Foreground(Brush(0x11, 0x11, 0x11));
     }
 
     void PinentryDialog::Populate()
@@ -467,6 +657,7 @@ namespace winrt::PinentryWinUI3::implementation
         {
             timeoutTimer_.Stop();
         }
+        UnregisterWindows10ThemeListener();
 
         ::PinentryWinUI3::Platform::Trace(L"dialog", L"resolving dialog");
         auto callback = std::move(onResolve_);
@@ -493,7 +684,7 @@ namespace winrt::PinentryWinUI3::implementation
         return std::wstring(RepeatPassphraseBox().Password());
     }
 
-    void PinentryDialog::OnPrimaryClick(Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
+    void PinentryDialog::ConfirmPrimaryAction()
     {
         UpdateValidation();
         if (!PrimaryButton().IsEnabled())
@@ -507,6 +698,11 @@ namespace winrt::PinentryWinUI3::implementation
         response.repeatOkay = !dialog_.showsRepeatField || response.passphrase == CurrentRepeatPassphrase();
         response.saveInCredentialManager = IsChecked(SaveCredentialCheckBox());
         Resolve(std::move(response));
+    }
+
+    void PinentryDialog::OnPrimaryClick(Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
+    {
+        ConfirmPrimaryAction();
     }
 
     void PinentryDialog::OnCancelClick(Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
@@ -552,6 +748,27 @@ namespace winrt::PinentryWinUI3::implementation
 
         UpdateValidation();
         UpdateQuality();
+    }
+
+    void PinentryDialog::OnPassphraseKeyDown(Windows::Foundation::IInspectable const&, KeyRoutedEventArgs const& args)
+    {
+        if (args.Key() != VirtualKey::Enter)
+        {
+            return;
+        }
+
+        args.Handled(true);
+        ConfirmPrimaryAction();
+    }
+
+    void PinentryDialog::OnCloseButtonPointerEntered(Windows::Foundation::IInspectable const&, PointerRoutedEventArgs const&)
+    {
+        SetWindows10CloseButtonHover(true);
+    }
+
+    void PinentryDialog::OnCloseButtonPointerExited(Windows::Foundation::IInspectable const&, PointerRoutedEventArgs const&)
+    {
+        SetWindows10CloseButtonHover(false);
     }
 
     void PinentryDialog::OnShowTypingChanged(Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
@@ -632,15 +849,6 @@ namespace winrt::PinentryWinUI3::implementation
             SourceInfoGrid().Visibility(Visibility::Visible);
         }
 
-        if (UsesWindows10DialogStyle())
-        {
-            SourceIconHost().Visibility(Visibility::Collapsed);
-            DefaultIcon().Visibility(Visibility::Collapsed);
-            DialogIconImage().Visibility(Visibility::Collapsed);
-            SourceInfoGrid().Visibility(VisibleIf(!dialog_.sourceApplicationName.empty()));
-            return;
-        }
-
         if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::FilePath)
         {
             iconPath = dialog_.iconSource.filePath;
@@ -652,6 +860,7 @@ namespace winrt::PinentryWinUI3::implementation
 
         if (iconPath.empty())
         {
+            SourceIconHost().Visibility(Visibility::Visible);
             DefaultIcon().Visibility(Visibility::Visible);
             DialogIconImage().Visibility(Visibility::Collapsed);
             return;
@@ -660,6 +869,7 @@ namespace winrt::PinentryWinUI3::implementation
         auto image = winrt::Microsoft::UI::Xaml::Media::Imaging::BitmapImage();
         image.UriSource(FileUri(iconPath));
         DialogIconImage().Source(image);
+        SourceIconHost().Visibility(Visibility::Visible);
         DialogIconImage().Visibility(Visibility::Visible);
         DefaultIcon().Visibility(Visibility::Collapsed);
     }
@@ -693,10 +903,10 @@ namespace winrt::PinentryWinUI3::implementation
         }
 
         fittingWindow_ = true;
-        RootGrid().ClearValue(FrameworkElement::HeightProperty());
-        RootGrid().Measure({ static_cast<float>(RootGrid().Width()), 10000.0f });
-        auto const desired = RootGrid().DesiredSize();
-        RootGrid().Height(desired.Height);
+        WindowFrameRoot().ClearValue(FrameworkElement::HeightProperty());
+        WindowFrameRoot().Measure({ static_cast<float>(WindowFrameRoot().Width()), 10000.0f });
+        auto const desired = WindowFrameRoot().DesiredSize();
+        WindowFrameRoot().Height(desired.Height);
         DisableResize();
 
         UINT const dpi = GetDpiForWindow(hwnd);
