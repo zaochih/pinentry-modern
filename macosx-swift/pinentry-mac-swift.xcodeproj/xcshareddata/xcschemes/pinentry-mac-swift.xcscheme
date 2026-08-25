@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A10B000F0000000000000001"
-               BuildableName = "pinentry-mac-swift.app"
+               BuildableName = "pinentry-modern.app"
                BlueprintName = "pinentry-mac-swift"
                ReferencedContainer = "container:pinentry-mac-swift.xcodeproj">
             </BuildableReference>
@@ -43,7 +43,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A10B000F0000000000000001"
-            BuildableName = "pinentry-mac-swift.app"
+            BuildableName = "pinentry-modern.app"
             BlueprintName = "pinentry-mac-swift"
             ReferencedContainer = "container:pinentry-mac-swift.xcodeproj">
          </BuildableReference>
@@ -60,7 +60,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "A10B000F0000000000000001"
-            BuildableName = "pinentry-mac-swift.app"
+            BuildableName = "pinentry-modern.app"
             BlueprintName = "pinentry-mac-swift"
             ReferencedContainer = "container:pinentry-mac-swift.xcodeproj">
          </BuildableReference>

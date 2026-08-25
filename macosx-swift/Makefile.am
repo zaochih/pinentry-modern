@@ -1,6 +1,6 @@
 # SwiftUI macOS frontend for pinentry.
 
-libexec_PROGRAMS = pinentry-mac-swift.app
+libexec_PROGRAMS = pinentry-modern.app
 
 XCODE_PROJECT = pinentry-mac-swift.xcodeproj
 XCODE_SCHEME = pinentry-mac-swift
@@ -29,7 +29,7 @@ EXTRA_DIST = \
 ../pinentry/libpinentry.a ../secmem/libsecmem.a:
 	./Scripts/build-pinentry-core-libs.sh
 
-pinentry-mac-swift.app: ../pinentry/libpinentry.a ../secmem/libsecmem.a
+pinentry-modern.app: ../pinentry/libpinentry.a ../secmem/libsecmem.a
 	xcodebuild \
 		-project "$(XCODE_PROJECT)" \
 		-scheme "$(XCODE_SCHEME)" \
@@ -43,7 +43,7 @@ pinentry-mac-swift.app: ../pinentry/libpinentry.a ../secmem/libsecmem.a
 		OTHER_CFLAGS="$(COMMON_CFLAGS)" \
 			OTHER_LDFLAGS="$(abs_top_builddir)/pinentry/libpinentry.a $(abs_top_builddir)/secmem/libsecmem.a $(COMMON_LIBS) -L/usr/local/MacGPG2/lib -L/opt/homebrew/lib -lassuan -lgpg-error -framework Security -framework LocalAuthentication"
 	rm -rf $@
-	cp -R "$(XCODE_PRODUCTS)/pinentry-mac-swift.app" $@
+	cp -R "$(XCODE_PRODUCTS)/pinentry-modern.app" $@
 
 clean-local:
-	rm -rf pinentry-mac-swift.app "$(XCODE_DERIVED_DATA)" "$(XCODE_PRODUCTS)"
+	rm -rf pinentry-modern.app "$(XCODE_DERIVED_DATA)" "$(XCODE_PRODUCTS)"

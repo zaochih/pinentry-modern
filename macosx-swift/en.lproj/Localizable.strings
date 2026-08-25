@@ -18,8 +18,8 @@
 "dialog.option.save_in_keychain" = "Save in Keychain";
 "dialog.empty.title" = "No active pinentry request";
 "dialog.empty.message" = "The presentation coordinator will attach the next dialog here.";
-"app.alert.integrity.title" = "Someone tampered with your installation of pinentry-mac-swift!";
-"app.alert.integrity.message" = "To keep you safe, pinentry-mac-swift will exit now.";
+"app.alert.integrity.title" = "Someone tampered with your installation of Pinentry Mac!";
+"app.alert.integrity.message" = "To keep you safe, Pinentry Mac will exit now.";
 "known.action.allow" = "Allow";
 "known.action.cancel" = "Cancel";
 "known.action.confirm" = "Confirm";

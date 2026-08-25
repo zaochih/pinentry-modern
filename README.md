@@ -19,14 +19,14 @@
 
 - 从仓库 Releases 下载 app。
 - 将 app 拖入“应用程序”目录，或者任意你想放置的位置。
-- 修改 gpg 配置文件 `~/.gnupg/gpg-agent.conf`，将 `pinentry-program` 指向 app 路径下的 `Contents/MacOS/pinentry-mac-swift`。
+- 修改 gpg 配置文件 `~/.gnupg/gpg-agent.conf`，将 `pinentry-program` 指向 app 路径下的 `Contents/MacOS/pinentry-modern`。
 - 重新加载 gpg-agent 配置：
 
 ```shell
 gpgconf --kill gpg-agent
 ```
 
-请不要将 `pinentry-mac-swift` 可执行文件单独从 app 中分离出来使用，否则会导致多语言支持失效。
+请不要将 `pinentry-modern` 可执行文件单独从 app 中分离出来使用，否则会导致多语言支持失效。
 
 ## 构建
 

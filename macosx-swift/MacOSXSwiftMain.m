@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         }
 #endif
 
-        pinentry_init("pinentry-mac-swift");
+        pinentry_init("pinentry-modern");
         pinentry_parse_opts(argc, argv);
 
 #ifdef FALLBACK_CURSES

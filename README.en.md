@@ -19,14 +19,14 @@ This project rewrites the pinentry mac GUI with SwiftUI and supports macOS 13 an
 
 - Download the app from the repository Releases.
 - Move the app into Applications, or any directory you prefer.
-- Edit `~/.gnupg/gpg-agent.conf` and point `pinentry-program` to `Contents/MacOS/pinentry-mac-swift` inside the app bundle.
+- Edit `~/.gnupg/gpg-agent.conf` and point `pinentry-program` to `Contents/MacOS/pinentry-modern` inside the app bundle.
 - Reload the gpg-agent configuration:
 
 ```shell
 gpgconf --kill gpg-agent
 ```
 
-Do not separate the `pinentry-mac-swift` executable from the app bundle. Doing so will break multi-language support.
+Do not separate the `pinentry-modern` executable from the app bundle. Doing so will break multi-language support.
 
 ## Build
 

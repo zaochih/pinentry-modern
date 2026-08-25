@@ -34,7 +34,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A10B000F0000000000000002 /* pinentry-mac-swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pinentry-mac-swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10B000F0000000000000002 /* pinentry-modern.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "pinentry-modern.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A10B00100000000000000001 /* PinentryMacSwiftRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryMacSwiftRuntime.swift; sourceTree = "<group>"; };
 		A10B00100000000000000002 /* DialogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogModel.swift; sourceTree = "<group>"; };
 		A10B00100000000000000003 /* DialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogViewModel.swift; sourceTree = "<group>"; };
@@ -112,7 +112,7 @@
 		A10B000F0000000000000006 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A10B000F0000000000000002 /* pinentry-mac-swift.app */,
+				A10B000F0000000000000002 /* pinentry-modern.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -198,8 +198,8 @@
 			dependencies = (
 			);
 			name = "pinentry-mac-swift";
-			productName = "pinentry-mac-swift";
-			productReference = A10B000F0000000000000002 /* pinentry-mac-swift.app */;
+			productName = "pinentry-modern";
+			productReference = A10B000F0000000000000002 /* pinentry-modern.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -433,7 +433,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "cn.stapxs.pinentry-modern";
 				PRODUCT_MODULE_NAME = pinentry_mac_swift;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "pinentry-modern";
 				SDKROOT = macosx;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "PinentryMacSwift-Bridging-Header.h";
@@ -495,7 +495,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "cn.stapxs.pinentry-modern";
 				PRODUCT_MODULE_NAME = pinentry_mac_swift;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "pinentry-modern";
 				SDKROOT = macosx;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "PinentryMacSwift-Bridging-Header.h";
