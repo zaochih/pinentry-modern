@@ -4,6 +4,16 @@
 
 本项目重写了一套更现代的 Pinentry GUI 实现，提供更符合系统风格和操作逻辑的 Pinentry GUI。
 
+## 特性支持
+
+![Visual Studio Code](README/VSCode.png)
+
+- 原生系统界面：macOS 使用 SwiftUI，Windows 使用 WinUI 3。
+- 系统级安全能力：macOS 支持 Keychain 缓存与 Touch ID 验证，Windows 支持 Credential Manager 缓存与 Windows Hello 验证。
+- 完整 Pinentry 对话能力：支持确认对话、口令输入、重复口令校验、口令强度条和请求超时提示。
+- 来源应用识别：尽可能显示发起请求应用的图标，帮助确认当前授权来源。
+- 多语言界面：内置英文和简体中文，并会本地化常见 GPG/Pinentry 提示文本。
+
 ## 支持的平台
 
 | 平台 | 最低兼容版本 | 截图 |  |

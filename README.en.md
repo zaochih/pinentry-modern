@@ -4,6 +4,16 @@
 
 Pinentry Modern provides a more modern Pinentry GUI implementation with interfaces and interaction patterns that better match each operating system.
 
+## Feature Support
+
+![Visual Studio Code](README/VSCode.png)
+
+- Native system UI: SwiftUI on macOS and WinUI 3 on Windows.
+- System security integration: Keychain caching with Touch ID verification on macOS, and Credential Manager caching with Windows Hello verification on Windows.
+- Full Pinentry dialog support: confirmation dialogs, passphrase entry, repeated passphrase validation, passphrase quality bars, and request timeout hints.
+- Source application recognition: shows the requesting application's icon when it can be resolved, making the authorization source easier to verify.
+- Multi-language UI: built-in English and Simplified Chinese, including localized common GPG/Pinentry prompt text.
+
 ## Supported Platforms
 
 | Platform | Minimum Version | Screenshot |  |
