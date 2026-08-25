@@ -4,22 +4,6 @@ permissions:
   contents: read
 
 on:
-  push:
-    paths:
-      - ".github/workflows/build-macos-swift.yml"
-      - "macosx-swift/**"
-      - "macosx/**"
-      - "pinentry/**"
-      - "secmem/**"
-      - "README.md"
-  pull_request:
-    paths:
-      - ".github/workflows/build-macos-swift.yml"
-      - "macosx-swift/**"
-      - "macosx/**"
-      - "pinentry/**"
-      - "secmem/**"
-      - "README.md"
   workflow_dispatch:
 
 jobs:
@@ -35,9 +19,9 @@ jobs:
         run: |
           {
             echo "DERIVED_DATA_PATH=$RUNNER_TEMP/pinentry-mac-modern-build"
-            echo "APP_PATH=$RUNNER_TEMP/pinentry-mac-modern-build/Build/Products/Release/pinentry-mac-swift.app"
-            echo "NOTARY_ZIP_PATH=$RUNNER_TEMP/pinentry-mac-swift-notary.zip"
-            echo "ZIP_PATH=$GITHUB_WORKSPACE/artifacts/pinentry-mac-swift-macos26-arm64.zip"
+            echo "APP_PATH=$RUNNER_TEMP/pinentry-mac-modern-build/Build/Products/Release/pinentry-modern.app"
+            echo "NOTARY_ZIP_PATH=$RUNNER_TEMP/pinentry-modern-notary.zip"
+            echo "ZIP_PATH=$GITHUB_WORKSPACE/artifacts/pinentry-modern-macos26-arm64.zip"
           } >> "$GITHUB_ENV"
 
       - name: Configure signing mode
@@ -106,7 +90,7 @@ jobs:
           security list-keychains -d user -s "$keychain_path" login.keychain-db
           security find-identity -v -p codesigning "$keychain_path"
 
-      - name: Build pinentry-mac-swift
+      - name: Build pinentry-modern
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
@@ -146,13 +130,13 @@ jobs:
             test "$(lipo -archs "$1")" = "arm64"
           }
 
-          test -x "$APP_PATH/Contents/MacOS/pinentry-mac-swift"
+          test -x "$APP_PATH/Contents/MacOS/pinentry-modern"
           test -f "$APP_PATH/Contents/Frameworks/libassuan.0.dylib"
           test -f "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib"
-          assert_arm64_only "$APP_PATH/Contents/MacOS/pinentry-mac-swift"
+          assert_arm64_only "$APP_PATH/Contents/MacOS/pinentry-modern"
           assert_arm64_only "$APP_PATH/Contents/Frameworks/libassuan.0.dylib"
           assert_arm64_only "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib"
-          otool -L "$APP_PATH/Contents/MacOS/pinentry-mac-swift"
+          otool -L "$APP_PATH/Contents/MacOS/pinentry-modern"
           otool -L "$APP_PATH/Contents/Frameworks/libassuan.0.dylib"
           otool -L "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib"
           if otool -L "$APP_PATH/Contents/Frameworks/libgpg-error.0.dylib" | grep -q "libintl.8.dylib"; then
@@ -192,6 +176,6 @@ jobs:
       - name: Upload app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pinentry-mac-swift-macos26-arm64
-          path: artifacts/pinentry-mac-swift-macos26-arm64.zip
+          name: pinentry-modern-macos26-arm64
+          path: artifacts/pinentry-modern-macos26-arm64.zip
           if-no-files-found: error

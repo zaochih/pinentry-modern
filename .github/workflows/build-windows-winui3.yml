@@ -1,0 +1,179 @@
+name: Build Windows WinUI 3 App
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Installer version. Defaults to the tag name or 0.1.0.
+        required: false
+        type: string
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build on Windows / x64
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: pwsh
+
+    env:
+      SOLUTION_PATH: windows-winui3\PinentryModern.sln
+      PROJECT_DIR: windows-winui3
+      CONFIGURATION: Release
+      PLATFORM: x64
+      OUTPUT_DIR: windows-winui3\bin\x64\Release
+      DIST_DIR: dist
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve package version
+        run: |
+          $version = '${{ github.event.inputs.version }}'
+          if ([string]::IsNullOrWhiteSpace($version)) {
+            if ($env:GITHUB_REF_TYPE -eq 'tag') {
+              $version = $env:GITHUB_REF_NAME -replace '^v', ''
+            } else {
+              $version = '0.1.0'
+            }
+          }
+
+          "PACKAGE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Package version: $version"
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Set up NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Install Windows build dependencies
+        run: |
+          choco install gpg4win innosetup --no-progress -y
+
+      - name: Locate Gpg4win
+        run: |
+          $roots = @(
+            "${env:ProgramFiles}\Gpg4win",
+            "${env:ProgramFiles(x86)}\Gpg4win"
+          )
+
+          $gpg4winRoot = $roots | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1
+          if (-not $gpg4winRoot) {
+            throw "Gpg4win installation was not found."
+          }
+
+          $includeDir = Join-Path $gpg4winRoot "include"
+          $libDir = Join-Path $gpg4winRoot "lib"
+          $binDir = Join-Path $gpg4winRoot "bin"
+
+          foreach ($path in @($includeDir, $libDir, $binDir)) {
+            if (-not (Test-Path -LiteralPath $path)) {
+              throw "Expected Gpg4win path was not found: $path"
+            }
+          }
+
+          "GPG4WIN_ROOT=$gpg4winRoot" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "GPG4WIN_INCLUDE_DIR=$includeDir" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "GPG4WIN_LIB_DIR=$libDir" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "GPG4WIN_BIN_DIR=$binDir" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+          Write-Host "Gpg4win root: $gpg4winRoot"
+          Get-ChildItem -LiteralPath $libDir -Filter "*.imp" | Select-Object -ExpandProperty Name
+
+      - name: Restore NuGet packages
+        run: |
+          nuget restore $env:SOLUTION_PATH `
+            -PackagesDirectory "$env:PROJECT_DIR\packages" `
+            -Verbosity detailed
+
+      - name: Build pinentry-modern
+        run: |
+          msbuild $env:SOLUTION_PATH `
+            /m `
+            /p:Configuration=$env:CONFIGURATION `
+            /p:Platform=$env:PLATFORM `
+            /p:AppxPackage=false `
+            /p:WindowsPackageType=None `
+            /p:WindowsAppSDKSelfContained=true `
+            /p:AssuanIncludeDir="$env:GPG4WIN_INCLUDE_DIR" `
+            /p:AssuanLibDir="$env:GPG4WIN_LIB_DIR"
+
+      - name: Copy Gpg4win runtime libraries
+        run: |
+          $runtimePatterns = @(
+            "libgpg-*.dll",
+            "libassuan-*.dll",
+            "libiconv-*.dll",
+            "libintl-*.dll"
+          )
+
+          foreach ($pattern in $runtimePatterns) {
+            Get-ChildItem -LiteralPath $env:GPG4WIN_BIN_DIR -Filter $pattern -File -ErrorAction SilentlyContinue |
+              Copy-Item -Destination $env:OUTPUT_DIR -Force
+          }
+
+          Get-ChildItem -LiteralPath $env:OUTPUT_DIR -Filter "*.dll" | Select-Object -ExpandProperty Name
+
+      - name: Verify Release output
+        run: |
+          $exePath = Join-Path $env:OUTPUT_DIR "pinentry-modern.exe"
+          if (-not (Test-Path -LiteralPath $exePath)) {
+            throw "pinentry-modern.exe was not found at $exePath"
+          }
+
+          $requiredDlls = @(
+            @("libgpg-error-*.dll"),
+            @("libgpg-assuan-*.dll", "libassuan-*.dll")
+          )
+
+          foreach ($patternGroup in $requiredDlls) {
+            $found = $false
+            foreach ($pattern in $patternGroup) {
+              if (Get-ChildItem -LiteralPath $env:OUTPUT_DIR -Filter $pattern -File -ErrorAction SilentlyContinue) {
+                $found = $true
+                break
+              }
+            }
+
+            if (-not $found) {
+              throw "Required runtime DLL was not copied. Expected one of: $($patternGroup -join ', ')"
+            }
+          }
+
+          Get-ChildItem -LiteralPath $env:OUTPUT_DIR | Sort-Object Name | Select-Object Name, Length
+
+      - name: Build installer
+        run: |
+          & "$env:PROJECT_DIR\Tools\build-installer.ps1" `
+            -Version $env:PACKAGE_VERSION `
+            -SourceDir $env:OUTPUT_DIR
+
+      - name: Package Release output
+        run: |
+          New-Item -ItemType Directory -Force -Path $env:DIST_DIR | Out-Null
+          $zipPath = Join-Path $env:DIST_DIR "pinentry-modern-$env:PACKAGE_VERSION-windows-x64.zip"
+          Compress-Archive -Path "$env:OUTPUT_DIR\*" -DestinationPath $zipPath -Force
+          Get-ChildItem -LiteralPath $env:DIST_DIR | Sort-Object Name | Select-Object Name, Length
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinentry-modern-installer-windows-x64
+          path: dist/pinentry-modern-setup-*.exe
+          if-no-files-found: error
+
+      - name: Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinentry-modern-portable-windows-x64
+          path: dist/pinentry-modern-*-windows-x64.zip
+          if-no-files-found: error
