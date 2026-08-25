@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Localization.h"
 
-namespace PinentryWinUI3::Core::Localization
+namespace PinentryModern::Core::Localization
 {
     namespace
     {

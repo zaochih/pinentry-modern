@@ -1,18 +1,18 @@
 #pragma once
 
 #include "Core/PinentryTypes.h"
-#include <winrt/PinentryWinUI3.h>
+#include <winrt/PinentryModern.h>
 #include "PinentryDialog.g.h"
 
-namespace winrt::PinentryWinUI3::implementation
+namespace winrt::PinentryModern::implementation
 {
     struct PinentryDialog :
         winrt::Microsoft::UI::Xaml::Markup::ComponentConnectorT<PinentryDialogT<PinentryDialog>>
     {
         PinentryDialog();
         PinentryDialog(
-            ::PinentryWinUI3::Core::DialogModel dialog,
-            std::function<void(::PinentryWinUI3::Core::DialogResponse)> onResolve);
+            ::PinentryModern::Core::DialogModel dialog,
+            std::function<void(::PinentryModern::Core::DialogResponse)> onResolve);
 
         void OnPrimaryClick(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
         void OnCancelClick(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& args);
@@ -39,7 +39,7 @@ namespace winrt::PinentryWinUI3::implementation
         void SetWindows10CloseButtonHover(bool hovering);
         bool UsesWindows10DialogStyle() const;
         void Populate();
-        void Resolve(::PinentryWinUI3::Core::DialogResponse response);
+        void Resolve(::PinentryModern::Core::DialogResponse response);
         void ConfirmPrimaryAction();
         void UpdatePassphraseMirror();
         void UpdateValidation();
@@ -55,8 +55,8 @@ namespace winrt::PinentryWinUI3::implementation
         std::wstring CurrentPassphrase();
         std::wstring CurrentRepeatPassphrase();
 
-        ::PinentryWinUI3::Core::DialogModel dialog_;
-        std::function<void(::PinentryWinUI3::Core::DialogResponse)> onResolve_;
+        ::PinentryModern::Core::DialogModel dialog_;
+        std::function<void(::PinentryModern::Core::DialogResponse)> onResolve_;
         bool completed_ = false;
         bool updatingMirror_ = false;
         bool fittingWindow_ = false;
@@ -72,7 +72,7 @@ namespace winrt::PinentryWinUI3::implementation
     };
 }
 
-namespace winrt::PinentryWinUI3::factory_implementation
+namespace winrt::PinentryModern::factory_implementation
 {
     struct PinentryDialog : PinentryDialogT<PinentryDialog, implementation::PinentryDialog>
     {

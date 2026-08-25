@@ -1,6 +1,6 @@
 ﻿#define MyAppName "Pinentry Windows"
-#define MyAppPublisher "Pinentry Windows"
-#define MyAppExeName "pinentry-winui3.exe"
+#define MyAppPublisher "Stapxs"
+#define MyAppExeName "pinentry-modern.exe"
 #ifndef MyAppVersion
 #define MyAppVersion "0.1.0"
 #endif
@@ -13,10 +13,10 @@ AppId={{DD6D00FD-160A-4F52-BA7B-1B6E32B73F67}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={localappdata}\Programs\pinentry-mac-modern
+DefaultDirName={localappdata}\Programs\pinentry-modern
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
-OutputBaseFilename=pinentry-winui3-setup-{#MyAppVersion}
+OutputBaseFilename=pinentry-modern-setup-{#MyAppVersion}
 OutputDir=..\..\dist
 ArchitecturesAllowed=x64compatible or arm64
 ArchitecturesInstallIn64BitMode=x64compatible
@@ -32,6 +32,7 @@ VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} Setup
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
+VersionInfoCopyright=Copyright (C) 2026 Stapxs. Released under GPL - see COPYING
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
@@ -62,7 +63,7 @@ function GpgConfigText: String;
 begin
   Result :=
     ExpandConstant('{cm:GpgPageLead}') + #13#10#13#10 +
-    'pinentry-program "' + WizardDirValue + '\pinentry-winui3.exe"' + #13#10#13#10 +
+    'pinentry-program "' + WizardDirValue + '\pinentry-modern.exe"' + #13#10#13#10 +
     ExpandConstant('{cm:GpgPageTypicalPath}') + #13#10 +
     '%APPDATA%\gnupg\gpg-agent.conf' + #13#10#13#10 +
     ExpandConstant('{cm:GpgPageReload}') + #13#10 +

@@ -2,7 +2,7 @@
 
 #include "../pch.h"
 
-namespace PinentryWinUI3::Platform
+namespace PinentryModern::Platform
 {
     class SecureWString
     {

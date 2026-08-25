@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Trace.h"
 
-namespace PinentryWinUI3::Platform
+namespace PinentryModern::Platform
 {
     namespace
     {
@@ -35,7 +35,7 @@ namespace PinentryWinUI3::Platform
             }
 
             tempPath.resize(length);
-            return tempPath + L"pinentry-winui3-owner-trace.log";
+            return tempPath + L"pinentry-modern-owner-trace.log";
         }
 
         std::wstring ModuleDirectoryTracePath()
@@ -57,7 +57,7 @@ namespace PinentryWinUI3::Platform
                 return {};
             }
 
-            return modulePath.substr(0, separator + 1) + L"pinentry-winui3-owner-trace.log";
+            return modulePath.substr(0, separator + 1) + L"pinentry-modern-owner-trace.log";
         }
 
         bool AppendTraceLine(std::wstring const& path, std::wstring const& line)
@@ -144,7 +144,7 @@ namespace PinentryWinUI3::Platform
             return;
         }
 
-        auto line = L"[pinentry-winui3 " + category + L"] " + message + L"\n";
+        auto line = L"[pinentry-modern " + category + L"] " + message + L"\n";
         OutputDebugStringW(line.c_str());
 
         auto const path = TracePath();

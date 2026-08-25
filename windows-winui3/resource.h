@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by PinentryWinUI3.rc
+// Used by PinentryModern.rc
 
 // 新对象的下一组默认值
 // 

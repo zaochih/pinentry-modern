@@ -20,7 +20,7 @@ namespace
         }
 
         std::wstring path(tempPath);
-        path += L"pinentry-winui3-startup-probe.txt";
+        path += L"pinentry-modern-startup-probe.txt";
 
         HANDLE file = CreateFileW(
             path.c_str(),
@@ -44,8 +44,8 @@ namespace
 
 int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
 {
-    using ::PinentryWinUI3::Platform::ClearTraceLog;
-    using ::PinentryWinUI3::Platform::Trace;
+    using ::PinentryModern::Platform::ClearTraceLog;
+    using ::PinentryModern::Platform::Trace;
 
     WriteStartupProbe();
     ClearTraceLog();
@@ -56,7 +56,7 @@ int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
         winrt::init_apartment(winrt::apartment_type::single_threaded);
         Trace(L"startup", L"winrt apartment initialized");
 
-        pinentry_init("pinentry-winui3");
+        pinentry_init("pinentry-modern");
         pinentry_parse_opts(__argc, __argv);
         pinentry_cmd_handler = pinentry_winui3_cmd_handler;
         pinentry_set_flavor_flag("winui3");
@@ -67,7 +67,7 @@ int __stdcall wWinMain(HINSTANCE, HINSTANCE, PWSTR, int)
             Trace(L"startup", L"creating XAML application");
             try
             {
-                winrt::make<winrt::PinentryWinUI3::implementation::App>();
+                winrt::make<winrt::PinentryModern::implementation::App>();
                 Trace(L"startup", L"XAML application created");
             }
             catch (winrt::hresult_error const& error)

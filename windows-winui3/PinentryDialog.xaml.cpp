@@ -19,7 +19,7 @@ using namespace winrt::Microsoft::UI::Xaml::Media;
 using namespace winrt::Windows::System;
 using namespace winrt::Windows::UI::ViewManagement;
 
-namespace winrt::PinentryWinUI3::implementation
+namespace winrt::PinentryModern::implementation
 {
     namespace
     {
@@ -48,17 +48,17 @@ namespace winrt::PinentryWinUI3::implementation
         {
             if (value >= 80)
             {
-                return ::PinentryWinUI3::Core::Localization::QualityStrong();
+                return ::PinentryModern::Core::Localization::QualityStrong();
             }
             if (value >= 55)
             {
-                return ::PinentryWinUI3::Core::Localization::QualityGood();
+                return ::PinentryModern::Core::Localization::QualityGood();
             }
             if (value >= 30)
             {
-                return ::PinentryWinUI3::Core::Localization::QualityFair();
+                return ::PinentryModern::Core::Localization::QualityFair();
             }
-            return ::PinentryWinUI3::Core::Localization::QualityWeak();
+            return ::PinentryModern::Core::Localization::QualityWeak();
         }
 
         winrt::Windows::Foundation::Uri FileUri(std::wstring path)
@@ -119,7 +119,7 @@ namespace winrt::PinentryWinUI3::implementation
         {
             DWORD const buildNumber = CurrentBuildNumber();
             bool const useWindows10Styles = buildNumber >= 10240 && buildNumber < 21996;
-            ::PinentryWinUI3::Platform::Trace(
+            ::PinentryModern::Platform::Trace(
                 L"dialog",
                 std::wstring(L"windows style check, build=") +
                     std::to_wstring(buildNumber) +
@@ -242,8 +242,8 @@ namespace winrt::PinentryWinUI3::implementation
     }
 
     PinentryDialog::PinentryDialog(
-        ::PinentryWinUI3::Core::DialogModel dialog,
-        std::function<void(::PinentryWinUI3::Core::DialogResponse)> onResolve)
+        ::PinentryModern::Core::DialogModel dialog,
+        std::function<void(::PinentryModern::Core::DialogResponse)> onResolve)
         : dialog_(std::move(dialog)), onResolve_(std::move(onResolve))
     {
         InitializeComponent();
@@ -254,9 +254,9 @@ namespace winrt::PinentryWinUI3::implementation
         {
             if (auto self = weak.get())
             {
-                ::PinentryWinUI3::Platform::Trace(L"dialog", L"closed event");
+                ::PinentryModern::Platform::Trace(L"dialog", L"closed event");
                 self->UnregisterWindows10ThemeListener();
-                ::PinentryWinUI3::Core::DialogResponse response;
+                ::PinentryModern::Core::DialogResponse response;
                 response.canceled = true;
                 self->Resolve(std::move(response));
             }
@@ -267,7 +267,7 @@ namespace winrt::PinentryWinUI3::implementation
 
     void PinentryDialog::InitializeDialogWindow()
     {
-        Title(H(::PinentryWinUI3::Core::Localization::DefaultDialogTitle()));
+        Title(H(::PinentryModern::Core::Localization::DefaultDialogTitle()));
         ConfigureTitleBar();
         PrepareInitialWindowForLayout();
 
@@ -506,7 +506,7 @@ namespace winrt::PinentryWinUI3::implementation
         InsertBrush(closeButtonResources, L"ButtonForegroundPressed", 0xFF, 0xFF, 0xFF);
         SetWindows10CloseButtonHover(false);
 
-        ::PinentryWinUI3::Platform::Trace(
+        ::PinentryModern::Platform::Trace(
             L"dialog",
             std::wstring(L"windows 10 dialog adjustments applied, dark=") + (useDarkTheme ? L"true" : L"false"));
     }
@@ -531,7 +531,7 @@ namespace winrt::PinentryWinUI3::implementation
                             bool const useDarkTheme = ShouldUseDarkAppTheme();
                             inner->ApplyWindows10DialogAdjustments();
                             inner->TuneWindowFrame();
-                            ::PinentryWinUI3::Platform::Trace(
+                            ::PinentryModern::Platform::Trace(
                                 L"dialog",
                                 std::wstring(L"windows 10 theme refreshed, dark=") + (useDarkTheme ? L"true" : L"false"));
                         }
@@ -574,7 +574,7 @@ namespace winrt::PinentryWinUI3::implementation
     void PinentryDialog::Populate()
     {
         Title(H(dialog_.title));
-        WindowCaptionText().Text(H(dialog_.title.empty() ? ::PinentryWinUI3::Core::Localization::DefaultDialogTitle() : dialog_.title));
+        WindowCaptionText().Text(H(dialog_.title.empty() ? ::PinentryModern::Core::Localization::DefaultDialogTitle() : dialog_.title));
         TitleText().Text(H(dialog_.title));
         MessageText().Text(H(dialog_.message));
         MessageText().Visibility(VisibleIf(!dialog_.message.empty()));
@@ -585,19 +585,19 @@ namespace winrt::PinentryWinUI3::implementation
         ErrorText().Text(H(dialog_.errorText));
         ErrorBorder().Visibility(VisibleIf(!dialog_.errorText.empty()));
 
-        bool const isPassphrase = dialog_.mode == ::PinentryWinUI3::Core::DialogMode::Passphrase;
+        bool const isPassphrase = dialog_.mode == ::PinentryModern::Core::DialogMode::Passphrase;
         PassphrasePanel().Visibility(VisibleIf(isPassphrase));
         QualityPanel().Visibility(VisibleIf(dialog_.showsQualityBar));
         ShowTypingCheckBox().Visibility(VisibleIf(isPassphrase && dialog_.showTypingToggleAvailable));
         SaveCredentialCheckBox().Visibility(VisibleIf(isPassphrase && dialog_.canUseCredentialManager));
 
-        MismatchText().Text(H(::PinentryWinUI3::Core::Localization::MismatchHint()));
-        QualityTitleText().Text(H(::PinentryWinUI3::Core::Localization::QualityTitle()));
-        ShowTypingCheckBox().Content(box_value(H(::PinentryWinUI3::Core::Localization::ShowTyping())));
-        SaveCredentialCheckBox().Content(box_value(H(::PinentryWinUI3::Core::Localization::SaveInCredentialManager())));
+        MismatchText().Text(H(::PinentryModern::Core::Localization::MismatchHint()));
+        QualityTitleText().Text(H(::PinentryModern::Core::Localization::QualityTitle()));
+        ShowTypingCheckBox().Content(box_value(H(::PinentryModern::Core::Localization::ShowTyping())));
+        SaveCredentialCheckBox().Content(box_value(H(::PinentryModern::Core::Localization::SaveInCredentialManager())));
 
-        auto const promptText = H(dialog_.promptText.empty() ? ::PinentryWinUI3::Core::Localization::DefaultPassphrasePrompt() : dialog_.promptText);
-        RepeatPassphraseBox().PlaceholderText(H(::PinentryWinUI3::Core::Localization::ConfirmPassphrasePrompt()));
+        auto const promptText = H(dialog_.promptText.empty() ? ::PinentryModern::Core::Localization::DefaultPassphrasePrompt() : dialog_.promptText);
+        RepeatPassphraseBox().PlaceholderText(H(::PinentryModern::Core::Localization::ConfirmPassphrasePrompt()));
         RepeatPassphraseBox().Visibility(VisibleIf(dialog_.showsRepeatField));
 
         ShowTypingCheckBox().IsChecked(dialog_.showTypingDefault);
@@ -627,7 +627,7 @@ namespace winrt::PinentryWinUI3::implementation
         }
 
         TimeoutText().Visibility(Visibility::Visible);
-        TimeoutText().Text(H(::PinentryWinUI3::Core::Localization::TimeoutHint(remainingSeconds_)));
+        TimeoutText().Text(H(::PinentryModern::Core::Localization::TimeoutHint(remainingSeconds_)));
 
         timeoutTimer_ = DispatcherQueue().CreateTimer();
         timeoutTimer_.Interval(std::chrono::seconds(1));
@@ -640,19 +640,19 @@ namespace winrt::PinentryWinUI3::implementation
                 if (--self->remainingSeconds_ <= 0)
                 {
                     timer.Stop();
-                    ::PinentryWinUI3::Core::DialogResponse response;
+                    ::PinentryModern::Core::DialogResponse response;
                     response.canceled = true;
                     self->Resolve(std::move(response));
                     return;
                 }
 
-                self->TimeoutText().Text(H(::PinentryWinUI3::Core::Localization::TimeoutHint(self->remainingSeconds_)));
+                self->TimeoutText().Text(H(::PinentryModern::Core::Localization::TimeoutHint(self->remainingSeconds_)));
             }
         });
         timeoutTimer_.Start();
     }
 
-    void PinentryDialog::Resolve(::PinentryWinUI3::Core::DialogResponse response)
+    void PinentryDialog::Resolve(::PinentryModern::Core::DialogResponse response)
     {
         if (completed_)
         {
@@ -666,13 +666,13 @@ namespace winrt::PinentryWinUI3::implementation
         }
         UnregisterWindows10ThemeListener();
 
-        ::PinentryWinUI3::Platform::Trace(L"dialog", L"resolving dialog");
+        ::PinentryModern::Platform::Trace(L"dialog", L"resolving dialog");
         auto callback = std::move(onResolve_);
         if (callback)
         {
             callback(std::move(response));
         }
-        ::PinentryWinUI3::Platform::Trace(L"dialog", L"closing dialog");
+        ::PinentryModern::Platform::Trace(L"dialog", L"closing dialog");
         Close();
     }
 
@@ -699,7 +699,7 @@ namespace winrt::PinentryWinUI3::implementation
             return;
         }
 
-        ::PinentryWinUI3::Core::DialogResponse response;
+        ::PinentryModern::Core::DialogResponse response;
         response.confirmed = true;
         response.passphrase = CurrentPassphrase();
         response.repeatOkay = !dialog_.showsRepeatField || response.passphrase == CurrentRepeatPassphrase();
@@ -714,14 +714,14 @@ namespace winrt::PinentryWinUI3::implementation
 
     void PinentryDialog::OnCancelClick(Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
     {
-        ::PinentryWinUI3::Core::DialogResponse response;
+        ::PinentryModern::Core::DialogResponse response;
         response.canceled = true;
         Resolve(std::move(response));
     }
 
     void PinentryDialog::OnNotOkClick(Windows::Foundation::IInspectable const&, RoutedEventArgs const&)
     {
-        ::PinentryWinUI3::Core::DialogResponse response;
+        ::PinentryModern::Core::DialogResponse response;
         response.declined = true;
         Resolve(std::move(response));
     }
@@ -810,7 +810,7 @@ namespace winrt::PinentryWinUI3::implementation
 
     void PinentryDialog::UpdateValidation()
     {
-        if (dialog_.mode != ::PinentryWinUI3::Core::DialogMode::Passphrase || !dialog_.showsRepeatField)
+        if (dialog_.mode != ::PinentryModern::Core::DialogMode::Passphrase || !dialog_.showsRepeatField)
         {
             MismatchText().Visibility(Visibility::Collapsed);
             PrimaryButton().IsEnabled(true);
@@ -836,8 +836,8 @@ namespace winrt::PinentryWinUI3::implementation
             return;
         }
 
-        int const rawQuality = ::PinentryWinUI3::Core::EvaluateQuality(dialog_.pinentryPointer, CurrentPassphrase());
-        double const quality = ::PinentryWinUI3::Core::NormalizeQuality(rawQuality);
+        int const rawQuality = ::PinentryModern::Core::EvaluateQuality(dialog_.pinentryPointer, CurrentPassphrase());
+        double const quality = ::PinentryModern::Core::NormalizeQuality(rawQuality);
         QualityBar().Value(quality);
         QualityText().Text(H(QualityLabel(quality)));
     }
@@ -845,9 +845,9 @@ namespace winrt::PinentryWinUI3::implementation
     void PinentryDialog::UpdateIcon()
     {
         std::wstring iconPath;
-        ::PinentryWinUI3::Platform::OwnerApplicationInfo ownerInfo;
-        ::PinentryWinUI3::Platform::Trace(L"owner", L"dialog owner pid: " + std::to_wstring(dialog_.iconSource.ownerPID));
-        ownerInfo = ::PinentryWinUI3::Platform::ResolveOwnerApplicationInfo(dialog_.iconSource.ownerPID);
+        ::PinentryModern::Platform::OwnerApplicationInfo ownerInfo;
+        ::PinentryModern::Platform::Trace(L"owner", L"dialog owner pid: " + std::to_wstring(dialog_.iconSource.ownerPID));
+        ownerInfo = ::PinentryModern::Platform::ResolveOwnerApplicationInfo(dialog_.iconSource.ownerPID);
         if (!ownerInfo.displayName.empty())
         {
             dialog_.sourceApplicationName = ownerInfo.displayName;
@@ -856,11 +856,11 @@ namespace winrt::PinentryWinUI3::implementation
             SourceInfoGrid().Visibility(Visibility::Visible);
         }
 
-        if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::FilePath)
+        if (dialog_.iconSource.kind == ::PinentryModern::Core::IconSourceKind::FilePath)
         {
             iconPath = dialog_.iconSource.filePath;
         }
-        else if (dialog_.iconSource.kind == ::PinentryWinUI3::Core::IconSourceKind::OwnerProcessID || !ownerInfo.iconPath.empty())
+        else if (dialog_.iconSource.kind == ::PinentryModern::Core::IconSourceKind::OwnerProcessID || !ownerInfo.iconPath.empty())
         {
             iconPath = ownerInfo.iconPath;
         }
@@ -974,7 +974,7 @@ namespace winrt::PinentryWinUI3::implementation
 
     void PinentryDialog::FocusInitialControl()
     {
-        if (dialog_.mode == ::PinentryWinUI3::Core::DialogMode::Passphrase)
+        if (dialog_.mode == ::PinentryModern::Core::DialogMode::Passphrase)
         {
             if (IsChecked(ShowTypingCheckBox()))
             {

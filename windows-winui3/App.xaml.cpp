@@ -15,7 +15,7 @@ using namespace winrt::Microsoft::UI::Xaml;
 using namespace winrt::Microsoft::UI::Xaml::Markup;
 using namespace winrt::Microsoft::UI::Xaml::Media;
 
-namespace winrt::PinentryWinUI3::implementation
+namespace winrt::PinentryModern::implementation
 {
     namespace
     {
@@ -50,7 +50,7 @@ namespace winrt::PinentryWinUI3::implementation
         {
             DWORD const buildNumber = CurrentBuildNumber();
             bool const useWindows10Styles = buildNumber >= 10240 && buildNumber < 21996;
-            ::PinentryWinUI3::Platform::Trace(
+            ::PinentryModern::Platform::Trace(
                 L"startup",
                 std::wstring(L"windows style check, build=") +
                     std::to_wstring(buildNumber) +
@@ -83,10 +83,10 @@ namespace winrt::PinentryWinUI3::implementation
 
     App::App()
     {
-        ::PinentryWinUI3::Platform::Trace(L"startup", L"app constructor entered");
+        ::PinentryModern::Platform::Trace(L"startup", L"app constructor entered");
         UnhandledException([](winrt::Windows::Foundation::IInspectable const&, UnhandledExceptionEventArgs const& args)
         {
-            ::PinentryWinUI3::Platform::Trace(
+            ::PinentryModern::Platform::Trace(
                 L"xaml",
                 L"unhandled exception, message=" + std::wstring(args.Message()));
         });
@@ -94,11 +94,11 @@ namespace winrt::PinentryWinUI3::implementation
         try
         {
             InitializeComponent();
-            ::PinentryWinUI3::Platform::Trace(L"startup", L"app InitializeComponent completed");
+            ::PinentryModern::Platform::Trace(L"startup", L"app InitializeComponent completed");
         }
         catch (winrt::hresult_error const& error)
         {
-            ::PinentryWinUI3::Platform::Trace(
+            ::PinentryModern::Platform::Trace(
                 L"startup",
                 L"app InitializeComponent winrt exception, hresult=" +
                     std::to_wstring(static_cast<int32_t>(error.code())) +
@@ -107,7 +107,7 @@ namespace winrt::PinentryWinUI3::implementation
         }
         catch (...)
         {
-            ::PinentryWinUI3::Platform::Trace(L"startup", L"app InitializeComponent exception");
+            ::PinentryModern::Platform::Trace(L"startup", L"app InitializeComponent exception");
             throw;
         }
     }
@@ -126,7 +126,7 @@ namespace winrt::PinentryWinUI3::implementation
         bool const useDarkTheme = ShouldUseDarkAppTheme();
         ApplyWindows10ThemeResources(useDarkTheme);
 
-        ::PinentryWinUI3::Platform::Trace(
+        ::PinentryModern::Platform::Trace(
             L"startup",
             std::wstring(L"windows 10 styles applied, dark=") + (useDarkTheme ? L"true" : L"false"));
     }
@@ -224,17 +224,17 @@ namespace winrt::PinentryWinUI3::implementation
 
     void App::OnLaunched(LaunchActivatedEventArgs const&)
     {
-        ::PinentryWinUI3::Platform::Trace(L"startup", L"app launched");
+        ::PinentryModern::Platform::Trace(L"startup", L"app launched");
         ApplyPlatformStyles();
-        ::PinentryWinUI3::Core::SetUIDispatcher(DispatcherQueue::GetForCurrentThread());
+        ::PinentryModern::Core::SetUIDispatcher(DispatcherQueue::GetForCurrentThread());
 
         std::thread([]()
         {
-            ::PinentryWinUI3::Platform::Trace(L"startup", L"pinentry loop starting");
+            ::PinentryModern::Platform::Trace(L"startup", L"pinentry loop starting");
             winrt::init_apartment(winrt::apartment_type::multi_threaded);
             int const result = pinentry_loop();
-            ::PinentryWinUI3::Platform::Trace(L"startup", L"pinentry loop exited, result=" + std::to_wstring(result));
-            ::PinentryWinUI3::Core::ExitApplicationFromPinentryThread(result);
+            ::PinentryModern::Platform::Trace(L"startup", L"pinentry loop exited, result=" + std::to_wstring(result));
+            ::PinentryModern::Core::ExitApplicationFromPinentryThread(result);
         }).detach();
     }
 }

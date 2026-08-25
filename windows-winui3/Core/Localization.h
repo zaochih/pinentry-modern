@@ -2,7 +2,7 @@
 
 #include "../pch.h"
 
-namespace PinentryWinUI3::Core::Localization
+namespace PinentryModern::Core::Localization
 {
     enum class TextRole
     {

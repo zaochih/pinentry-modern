@@ -133,7 +133,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="PinentryWinUI3.rc" />
+    <ResourceCompile Include="PinentryModern.rc" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="App.idl" />

@@ -2,7 +2,7 @@
 #include "WindowsHello.h"
 #include "Trace.h"
 
-namespace PinentryWinUI3::Platform
+namespace PinentryModern::Platform
 {
     WindowsHelloResult VerifyWindowsHello(std::wstring const& prompt)
     {

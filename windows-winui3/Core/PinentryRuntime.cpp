@@ -5,7 +5,7 @@ using namespace winrt;
 using namespace winrt::Microsoft::UI::Dispatching;
 using namespace winrt::Microsoft::UI::Xaml;
 
-namespace PinentryWinUI3::Core
+namespace PinentryModern::Core
 {
     namespace
     {

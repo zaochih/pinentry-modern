@@ -7,7 +7,7 @@ extern "C"
 #include "../../pinentry/pinentry.h"
 }
 
-namespace PinentryWinUI3::Core
+namespace PinentryModern::Core
 {
     int EvaluateQuality(void* pinentryPointer, std::wstring const& passphrase)
     {

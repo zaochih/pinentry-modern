@@ -1,9 +1,9 @@
 #pragma once
 
-#include <winrt/PinentryWinUI3.h>
+#include <winrt/PinentryModern.h>
 #include "App.g.h"
 
-namespace winrt::PinentryWinUI3::implementation
+namespace winrt::PinentryModern::implementation
 {
     struct App : AppT<App>
     {
@@ -16,7 +16,7 @@ namespace winrt::PinentryWinUI3::implementation
     };
 }
 
-namespace winrt::PinentryWinUI3::factory_implementation
+namespace winrt::PinentryModern::factory_implementation
 {
     struct App : AppT<App, implementation::App>
     {

@@ -8,7 +8,7 @@
 #include <wincodec.h>
 #include <winver.h>
 
-namespace PinentryWinUI3::Platform
+namespace PinentryModern::Platform
 {
     namespace
     {
@@ -113,7 +113,7 @@ namespace PinentryWinUI3::Platform
         {
             auto const fileName = Lowercase(FileNameFromPath(imagePath));
             return
-                fileName == L"pinentry-winui3.exe" ||
+                fileName == L"pinentry-modern.exe" ||
                 fileName == L"pinentry.exe" ||
                 fileName == L"gpg-agent.exe";
         }
@@ -323,7 +323,7 @@ namespace PinentryWinUI3::Platform
 
             tempPath.resize(length);
             return tempPath +
-                L"pinentry-winui3-owner-" +
+                L"pinentry-modern-owner-" +
                 std::to_wstring(processID) +
                 L"-" +
                 std::to_wstring(GetTickCount64()) +

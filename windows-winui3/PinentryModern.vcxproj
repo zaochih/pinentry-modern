@@ -28,8 +28,8 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <ProjectGuid>{8B7D3E86-5D74-4F7D-99B8-B52E3C6AC4A8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>PinentryWinUI3</RootNamespace>
-    <ProjectName>PinentryWinUI3</ProjectName>
+    <RootNamespace>PinentryModern</RootNamespace>
+    <ProjectName>PinentryModern</ProjectName>
     <ApplicationType>Windows Store</ApplicationType>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
@@ -62,7 +62,7 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>pinentry-winui3</TargetName>
+    <TargetName>pinentry-modern</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -172,13 +172,13 @@
     <Page Include="Styles\Win10ControlStyles.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="PinentryWinUI3.rc" />
+    <ResourceCompile Include="PinentryModern.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Target Name="PinentryWinUI3InjectPreambleIntoXamlGenerated"
+  <Target Name="PinentryModernInjectPreambleIntoXamlGenerated"
           AfterTargets="ComputeXamlGeneratedCompileInputs"
           BeforeTargets="ClCompile">
     <ItemGroup>
@@ -196,7 +196,7 @@
       </ClCompile>
     </ItemGroup>
   </Target>
-  <Target Name="PinentryWinUI3InjectPreambleIntoXamlGeneratedPass2"
+  <Target Name="PinentryModernInjectPreambleIntoXamlGeneratedPass2"
           AfterTargets="ComputeXamlGeneratedCompileInputs"
           BeforeTargets="CompileXamlGeneratedFiles">
     <ItemGroup>

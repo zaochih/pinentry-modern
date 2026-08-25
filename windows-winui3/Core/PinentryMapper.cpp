@@ -7,7 +7,7 @@ extern "C"
 #include "../../pinentry/pinentry.h"
 }
 
-namespace PinentryWinUI3::Core
+namespace PinentryModern::Core
 {
     namespace
     {
@@ -273,7 +273,7 @@ namespace PinentryWinUI3::Core
             return {};
         }
 
-        return L"pinentry-winui3:" + cacheIdentifier;
+        return L"pinentry-modern:" + cacheIdentifier;
     }
 
     PinentryRequestPayload MakeRequestPayload(void* rawPinentry)

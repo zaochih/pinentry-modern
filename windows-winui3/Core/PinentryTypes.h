@@ -2,7 +2,7 @@
 
 #include "../pch.h"
 
-namespace PinentryWinUI3::Core
+namespace PinentryModern::Core
 {
     struct PinentryIdentityContext
     {

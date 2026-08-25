@@ -2,7 +2,7 @@
 
 #include "../pch.h"
 
-namespace PinentryWinUI3::Core
+namespace PinentryModern::Core
 {
     void SetUIDispatcher(winrt::Microsoft::UI::Dispatching::DispatcherQueue const& dispatcher);
     winrt::Microsoft::UI::Dispatching::DispatcherQueue UIDispatcher();

@@ -9,8 +9,8 @@
 #include "../Platform/WindowsHello.h"
 #include "../PinentryDialog.xaml.h"
 
-using namespace PinentryWinUI3::Core;
-using namespace PinentryWinUI3::Platform;
+using namespace PinentryModern::Core;
+using namespace PinentryModern::Platform;
 
 pinentry_cmd_handler_t pinentry_cmd_handler = pinentry_winui3_cmd_handler;
 
@@ -28,7 +28,7 @@ namespace
     {
         if (request.identity.userID.empty())
         {
-            return L"pinentry-winui3";
+            return L"pinentry-modern";
         }
 
         if (!request.identity.name.empty() && !request.identity.email.empty() && !request.identity.keyID.empty())
@@ -105,8 +105,8 @@ namespace
         auto waitState = std::make_shared<DialogWaitState>();
         if (!dispatcher.TryEnqueue([dialog, waitState]()
         {
-            auto windowHolder = std::make_shared<winrt::PinentryWinUI3::PinentryDialog>(nullptr);
-            *windowHolder = winrt::make<winrt::PinentryWinUI3::implementation::PinentryDialog>(
+            auto windowHolder = std::make_shared<winrt::PinentryModern::PinentryDialog>(nullptr);
+            *windowHolder = winrt::make<winrt::PinentryModern::implementation::PinentryDialog>(
                 dialog,
                 [waitState, windowHolder](DialogResponse response)
                 {

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "CredentialStore.h"
 
-namespace PinentryWinUI3::Platform
+namespace PinentryModern::Platform
 {
     namespace
     {
@@ -67,7 +67,7 @@ namespace PinentryWinUI3::Platform
         CREDENTIALW credential{};
         credential.Type = CRED_TYPE_GENERIC;
         credential.TargetName = const_cast<LPWSTR>(target.c_str());
-        credential.UserName = const_cast<LPWSTR>(label.empty() ? L"pinentry-winui3" : label.c_str());
+        credential.UserName = const_cast<LPWSTR>(label.empty() ? L"pinentry-modern" : label.c_str());
         credential.Persist = CRED_PERSIST_LOCAL_MACHINE;
         credential.CredentialBlobSize = static_cast<DWORD>(persistedSecret.size() * sizeof(wchar_t));
         credential.CredentialBlob = reinterpret_cast<LPBYTE>(persistedSecret.data());

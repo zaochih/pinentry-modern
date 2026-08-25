@@ -1,4 +1,4 @@
-namespace PinentryWinUI3
+namespace PinentryModern
 {
     [default_interface]
     runtimeclass App : Microsoft.UI.Xaml.Application

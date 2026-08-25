@@ -2,7 +2,7 @@
 
 #include "PinentryTypes.h"
 
-namespace PinentryWinUI3::Core
+namespace PinentryModern::Core
 {
     std::wstring FromPinentryString(char const* value);
     std::string ToUtf8(std::wstring const& value);

@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $WindowsDir = Split-Path -Parent $PSScriptRoot
-$InstallerScript = Join-Path $WindowsDir "Installer\pinentry-winui3.iss"
+$InstallerScript = Join-Path $WindowsDir "Installer\pinentry-modern.iss"
 
 if (-not $SourceDir) {
     $SourceDir = Join-Path $WindowsDir "bin\x64\Release"
@@ -62,9 +62,9 @@ if (-not $ResolvedSourceDir) {
     throw "Release output directory was not found: '$SourceDir'. Build Release|x64 first, or pass -SourceDir."
 }
 
-$ExePath = Join-Path $ResolvedSourceDir.Path "pinentry-winui3.exe"
+$ExePath = Join-Path $ResolvedSourceDir.Path "pinentry-modern.exe"
 if (-not (Test-Path -LiteralPath $ExePath)) {
-    throw "pinentry-winui3.exe was not found in '$($ResolvedSourceDir.Path)'. Build Release|x64 first, or pass -SourceDir."
+    throw "pinentry-modern.exe was not found in '$($ResolvedSourceDir.Path)'. Build Release|x64 first, or pass -SourceDir."
 }
 
 $ResolvedIsccPath = Resolve-IsccPath -ExplicitPath $IsccPath
