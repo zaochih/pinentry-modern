@@ -49,7 +49,14 @@ namespace winrt::PinentryWinUI3::implementation
         bool ShouldUseWindows10Styles()
         {
             DWORD const buildNumber = CurrentBuildNumber();
-            return buildNumber >= 10240 && buildNumber < 21996;
+            bool const useWindows10Styles = buildNumber >= 10240 && buildNumber < 21996;
+            ::PinentryWinUI3::Platform::Trace(
+                L"startup",
+                std::wstring(L"windows style check, build=") +
+                    std::to_wstring(buildNumber) +
+                    L", win10Styles=" +
+                    (useWindows10Styles ? L"true" : L"false"));
+            return useWindows10Styles;
         }
 
         bool ShouldUseDarkAppTheme()

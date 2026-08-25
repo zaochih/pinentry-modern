@@ -59,6 +59,7 @@ macosx-swift/Makefile.in
 macosx-swift/Makefile
 pinentry/libpinentry.a
 secmem/libsecmem.a
+/dist/
 
 # Windows / Visual Studio
 windows-winui3/.vs/
