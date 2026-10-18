@@ -1,5 +1,4 @@
 "dialog.title.default" = "密码验证";
-"dialog.title.touch_id" = "Touch ID 验证";
 "dialog.action.unlock" = "确定";
 "dialog.action.allow" = "允许";
 "dialog.action.cancel" = "取消";
@@ -9,6 +8,16 @@
 "dialog.prompt.confirm_format" = "再次输入%@";
 "dialog.repeat.mismatch" = "两次输入的口令必须一致。";
 "dialog.timeout.remaining" = "此请求将在 %d 秒后超时。";
+"dialog.key_remark" = "此密钥已标记为“%@”。";
+"dialog.title.caller_uses_gpg_key" = "%@ 正在尝试使用 GPG 密钥";
+"dialog.title.caller_uses_ssh_key" = "%@ 正在尝试使用 SSH 密钥";
+"dialog.title.unlock_gpg_key" = "解锁 GPG 密钥";
+"dialog.title.unlock_ssh_key" = "解锁 SSH 密钥";
+"dialog.title.enter_passphrase" = "输入口令";
+"dialog.touch_id.for_caller" = "（%@ 发起）";
+"touchid.reason.key" = "解锁 GPG 密钥 %@";
+"touchid.reason.generic" = "解锁你的 GPG 口令";
+"touchid.sentence_end" = "。";
 "dialog.quality.title" = "口令强度";
 "dialog.quality.weak" = "弱";
 "dialog.quality.fair" = "一般";

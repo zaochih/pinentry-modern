@@ -21,6 +21,8 @@ struct DialogModel: Equatable {
     let promptText: String?
     let okText: String
     let cancelText: String
+    /// False for MESSAGE requests, which only have an OK button.
+    let showsCancelButton: Bool
     let notOkText: String?
     let showsRepeatField: Bool
     let showsQualityBar: Bool
@@ -34,6 +36,24 @@ struct DialogModel: Equatable {
     let automaticTouchIDKeychainLabel: String?
     let timeoutSeconds: Int?
     let iconSource: IconSource
+}
+
+/// Layout settings that can be changed without rebuilding.
+enum DialogLayout {
+    static let defaultWidth: CGFloat = 300
+    static let widthRange: ClosedRange<CGFloat> = 260...720
+
+    /// Width of the dialog content in points. Override with
+    /// `defaults write cn.stapxs.pinentry-modern WindowWidth -int 400`
+    /// and reset with `defaults delete cn.stapxs.pinentry-modern WindowWidth`.
+    static var width: CGFloat {
+        let stored = UserDefaults.standard.integer(forKey: "WindowWidth")
+        guard stored > 0 else {
+            return defaultWidth
+        }
+
+        return min(max(CGFloat(stored), widthRange.lowerBound), widthRange.upperBound)
+    }
 }
 
 struct DialogViewState: Equatable {

@@ -25,8 +25,11 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
         return await waitForResponse()
     }
 
-    func show(dialog: DialogModel) {
-        activeViewModel = makeViewModel(for: dialog)
+    @discardableResult
+    func show(dialog: DialogModel) -> DialogViewModel {
+        let viewModel = makeViewModel(for: dialog)
+        activeViewModel = viewModel
+        return viewModel
     }
 
     func waitForResponse() async -> DialogResponse {
@@ -35,8 +38,17 @@ final class WindowPresentationCoordinator: ObservableObject, PinentryPresenter {
         }
     }
 
-    func beginAutomaticTouchIDIfNeeded() {
-        activeViewModel?.beginAutomaticTouchIDIfNeeded()
+    /// Tries the system Touch ID sheet first. `onPasswordEntryNeeded` fires when
+    /// there is nothing to unlock with Touch ID, or it was cancelled or failed,
+    /// i.e. when the manual passphrase window has to be shown.
+    func beginAutomaticTouchIDIfNeeded(onPasswordEntryNeeded: @escaping () -> Void) {
+        guard let viewModel = activeViewModel else {
+            onPasswordEntryNeeded()
+            return
+        }
+
+        viewModel.onPasswordEntryNeeded = onPasswordEntryNeeded
+        viewModel.beginAutomaticTouchIDIfNeeded()
     }
 
     private func makeViewModel(for dialog: DialogModel) -> DialogViewModel {

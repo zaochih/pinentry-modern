@@ -11,8 +11,10 @@ final class DialogViewModel: ObservableObject {
     @Published var showTypedPassphrase: Bool
     @Published private(set) var response: DialogResponse?
     @Published private(set) var remainingSeconds: Int?
-    @Published private(set) var showsInlineTouchID = false
-    @Published private(set) var inlineTouchIDContext: LAContext?
+
+    /// Called when automatic Touch ID did not produce a passphrase and the
+    /// manual passphrase dialog has to be shown.
+    var onPasswordEntryNeeded: (() -> Void)?
 
     let dialog: DialogModel
 
@@ -25,6 +27,7 @@ final class DialogViewModel: ObservableObject {
     private var didAttemptAutomaticTouchID = false
     private var keychainMarkedUnusable = false
     private var touchIDSession = 0
+    private var touchIDContext: LAContext?
 
     init(
         dialog: DialogModel,
@@ -41,21 +44,6 @@ final class DialogViewModel: ObservableObject {
         self.saveInKeychain = dialog.saveInKeychainDefault
         self.showTypedPassphrase = dialog.showTypingDefault
         self.remainingSeconds = dialog.timeoutSeconds
-
-        NSLog(
-            """
-            [pinentry-mac-swift][view-model]
-            dialog: title=%@ | prompt=%@ | ok=%@ | cancel=%@
-            local: showTyping=%@ | saveInKeychain=%@ | timeout=%@
-            """,
-            dialog.title,
-            dialog.promptText ?? "<nil>",
-            dialog.okText,
-            dialog.cancelText,
-            L10n.showTyping,
-            L10n.saveInKeychain,
-            dialog.timeoutSeconds.map { L10n.timeoutHint(secondsRemaining: $0) } ?? "<nil>"
-        )
 
         beginTimeoutIfNeeded()
     }
@@ -80,7 +68,7 @@ final class DialogViewModel: ObservableObject {
     }
 
     var titleText: String {
-        showsInlineTouchID ? L10n.touchIDDialogTitle : dialog.title
+        dialog.title
     }
 
     var primaryActionTitle: String {
@@ -127,12 +115,15 @@ final class DialogViewModel: ObservableObject {
         return qualityEstimator.evaluate(passphrase: passphrase)
     }
 
+    /// A new passphrase has to be typed twice: the second field counts even while it is
+    /// still empty, otherwise Return after the first field would accept a passphrase
+    /// that was never confirmed.
     var isPrimaryActionEnabled: Bool {
         switch dialog.mode {
         case .confirm:
             return true
         case .passphrase:
-            return mismatchHint == nil
+            return !state.showsRepeatField || repeatedPassphrase == passphrase
         }
     }
 
@@ -144,20 +135,21 @@ final class DialogViewModel: ObservableObject {
         return L10n.timeoutHint(secondsRemaining: remainingSeconds)
     }
 
-    var usePasswordActionTitle: String {
-        L10n.usePasswordAction
+    /// Whether the alert needs an accessory view at all.
+    var hasAccessoryContent: Bool {
+        state.showsErrorSection || dialog.mode == .passphrase || dialog.timeoutSeconds != nil
     }
 
-    func resolveIcon() -> Image {
+    /// Icon for the system alert: the calling application's own icon, or a system
+    /// symbol when the caller cannot be determined.
+    func alertIcon() -> NSImage {
         switch dialog.iconSource {
         case .systemSymbol(let name):
-            return Image(systemName: name)
+            return AlertIcon.symbol(name)
+        case .appIcon:
+            return AlertIcon.symbol(AlertIcon.fallbackSymbolName)
         default:
-            if let image = iconResolver.resolve(dialog.iconSource) {
-                return Image(nsImage: image)
-            }
-
-            return Image(systemName: "lock.circle.fill")
+            return iconResolver.resolve(dialog.iconSource) ?? AlertIcon.symbol(AlertIcon.fallbackSymbolName)
         }
     }
 
@@ -220,6 +212,7 @@ final class DialogViewModel: ObservableObject {
             let localizedReason = dialog.automaticTouchIDPrompt?.trimmingCharacters(in: .whitespacesAndNewlines),
             !localizedReason.isEmpty
         else {
+            fallBackToPasswordEntry()
             return
         }
 
@@ -228,22 +221,22 @@ final class DialogViewModel: ObservableObject {
         guard
             let keychainQuery = AutomaticTouchIDQuery(cacheID: cacheID, keychainLabel: keychainLabel)
         else {
+            fallBackToPasswordEntry()
             return
         }
 
         let context = LAContext()
-        context.localizedFallbackTitle = ""
+        // The system sheet's secondary button; choosing it falls back to typing the passphrase.
+        context.localizedFallbackTitle = L10n.usePasswordAction
         var evaluationError: NSError?
         guard context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &evaluationError) else {
+            fallBackToPasswordEntry()
             return
         }
 
         touchIDSession += 1
         let session = touchIDSession
-        if PinentryMacSwiftCanCreateAuthenticationView() {
-            inlineTouchIDContext = context
-            showsInlineTouchID = true
-        }
+        touchIDContext = context
 
         automaticTouchIDTask = Task { [weak self] in
             let result = await Self.performAutomaticTouchID(
@@ -272,24 +265,22 @@ final class DialogViewModel: ObservableObject {
                     )
                 case .unusableKeychain:
                     self.keychainMarkedUnusable = true
-                    self.showPasswordEntryAfterTouchID(invalidateContext: false)
+                    self.fallBackToPasswordEntry()
                 case .continueManually:
-                    self.showPasswordEntryAfterTouchID(invalidateContext: false)
+                    self.fallBackToPasswordEntry()
                 }
             }
         }
-    }
-
-    func usePasswordInstead() {
-        showPasswordEntryAfterTouchID(invalidateContext: true)
     }
 
     private func finish(_ response: DialogResponse) {
         self.response = response
         timeoutTask?.cancel()
         automaticTouchIDTask?.cancel()
-        inlineTouchIDContext?.invalidate()
-        inlineTouchIDContext = nil
+        touchIDContext?.invalidate()
+        touchIDContext = nil
+        // The callback holds the runner, which holds this view model.
+        onPasswordEntryNeeded = nil
         onResolve?(response)
     }
 
@@ -370,14 +361,16 @@ final class DialogViewModel: ObservableObject {
         return .resolved(passphrase)
     }
 
-    private func showPasswordEntryAfterTouchID(invalidateContext: Bool) {
+    private func fallBackToPasswordEntry() {
         touchIDSession += 1
         automaticTouchIDTask?.cancel()
         automaticTouchIDTask = nil
-        if invalidateContext {
-            inlineTouchIDContext?.invalidate()
-        }
-        inlineTouchIDContext = nil
-        showsInlineTouchID = false
+        touchIDContext = nil
+
+        // One-shot: it must not keep the runner (and through it this view model, with the
+        // typed passphrase) alive once the manual entry has been requested.
+        let callback = onPasswordEntryNeeded
+        onPasswordEntryNeeded = nil
+        callback?()
     }
 }

@@ -81,8 +81,19 @@ enum L10n {
         tr("dialog.title.default", fallback: "Pinentry Mac")
     }
 
-    static var touchIDDialogTitle: String {
-        tr("dialog.title.touch_id", fallback: "Touch ID Verification")
+    /// The system sheet reads "<app> is trying to <reason>.", so the reason is a verb
+    /// phrase without a trailing period.
+    static func touchIDReason(forKey label: String) -> String {
+        format("touchid.reason.key", fallback: "unlock the GPG key %@", label)
+    }
+
+    static var touchIDReasonGeneric: String {
+        tr("touchid.reason.generic", fallback: "unlock your GPG passphrase")
+    }
+
+    /// Closes the first paragraph when a second one follows.
+    static var touchIDSentenceEnd: String {
+        tr("touchid.sentence_end", fallback: ".")
     }
 
     static var unlockAction: String {
@@ -123,6 +134,38 @@ enum L10n {
             fallback: "This request times out in %ds.",
             secondsRemaining
         )
+    }
+
+    static func callerUsesKeyTitle(caller: String, isSSH: Bool) -> String {
+        if isSSH {
+            return format("dialog.title.caller_uses_ssh_key", fallback: "%@ is trying to use an SSH key", caller)
+        }
+
+        return format("dialog.title.caller_uses_gpg_key", fallback: "%@ is trying to use a GPG key", caller)
+    }
+
+    static func touchIDForCaller(_ caller: String) -> String {
+        format("dialog.touch_id.for_caller", fallback: "for %@", caller)
+    }
+
+    static var setNewPassphraseTitle: String {
+        tr("known.title.set_new_passphrase", fallback: "Set New Passphrase")
+    }
+
+    static var enterPassphraseTitle: String {
+        tr("dialog.title.enter_passphrase", fallback: "Enter Passphrase")
+    }
+
+    static func unlockKeyTitle(isSSH: Bool) -> String {
+        if isSSH {
+            return tr("dialog.title.unlock_ssh_key", fallback: "Unlock SSH Key")
+        }
+
+        return tr("dialog.title.unlock_gpg_key", fallback: "Unlock GPG Key")
+    }
+
+    static func keyRemarkNote(_ remark: String) -> String {
+        format("dialog.key_remark", fallback: "This key is marked as “%@”.", remark)
     }
 
     static var qualityTitle: String {
@@ -185,33 +228,6 @@ enum L10n {
         }
 
         return text
-    }
-
-    static func debugLocalizationContext() -> String {
-        let appBundle = AppRuntimeBundle.bundle
-        let supportedLocalizations = Array(Set(appBundle.localizations)).sorted()
-        let languagePreferences = UserDefaults.standard.stringArray(forKey: "AppleLanguages") ?? Locale.preferredLanguages
-        let preferredLocalizations = Bundle.preferredLocalizations(
-            from: supportedLocalizations.filter { $0 != "Base" },
-            forPreferences: languagePreferences
-        )
-        let selectedLocalization = preferredLocalizations.first ?? appBundle.developmentLocalization ?? "unknown"
-        let selectedBundlePath = appBundle.path(forResource: selectedLocalization, ofType: "lproj") ?? "<main>"
-
-        return """
-        languages=\(languagePreferences)
-        mainBundle=\(Bundle.main.bundleURL.path)
-        appBundle=\(appBundle.bundleURL.path)
-        supported=\(supportedLocalizations)
-        preferred=\(preferredLocalizations)
-        development=\(appBundle.developmentLocalization ?? "nil")
-        selected=\(selectedLocalization)
-        bundle=\(selectedBundlePath)
-        showTyping=\(tr("dialog.option.show_typing", fallback: "Show typing"))
-        timeout=\(tr("dialog.timeout.remaining", fallback: "This request times out in %ds."))
-        unlock=\(tr("dialog.action.unlock", fallback: "OK"))
-        cancel=\(tr("dialog.action.cancel", fallback: "Cancel"))
-        """
     }
 
     private static let knownTitleTranslations = makeLookupTable([

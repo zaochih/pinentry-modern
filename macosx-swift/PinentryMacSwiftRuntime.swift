@@ -1,43 +1,6 @@
 import AppKit
 import Darwin
 import Foundation
-import SwiftUI
-
-private let windowMinimumContentSize = NSSize(width: 300, height: 0)
-private let windowMaximumContentSize = NSSize(width: 420, height: 640)
-private let windowShadowOutset: CGFloat = 18
-
-private final class PinentryPanelWindow: NSWindow {
-    override var canBecomeKey: Bool { true }
-    override var canBecomeMain: Bool { true }
-}
-
-@MainActor
-private final class PinentryHostingController: NSHostingController<PrototypeWindowView> {
-    var preferredSizeDidChange: ((NSSize) -> Void)?
-
-    init(coordinator: WindowPresentationCoordinator) {
-        super.init(rootView: PrototypeWindowView(coordinator: coordinator))
-        if #available(macOS 13.0, *) {
-            sizingOptions = [.preferredContentSize, .intrinsicContentSize]
-        }
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override var preferredContentSize: NSSize {
-        didSet {
-            guard preferredContentSize != oldValue else {
-                return
-            }
-
-            preferredSizeDidChange?(preferredContentSize)
-        }
-    }
-}
 
 @objc(CPinentryRequest)
 final class CPinentryRequest: NSObject {
@@ -54,9 +17,12 @@ final class CPinentryRequest: NSObject {
     @objc var timeoutSeconds = 0
     @objc var keyInfo: String?
     @objc var prefersSaveInKeychain = false
+    /// There is no cache id, but an item for this key exists and can be updated by its label.
+    @objc var canUpdateSavedPassphraseByLabel = false
+    /// MESSAGE or CONFIRM --one-button: there is nothing to cancel.
+    @objc var oneButton = false
     @objc var prefersShowTyping = false
     @objc var attemptsAutomaticTouchID = false
-    @objc var automaticTouchIDPrompt: String?
     @objc var automaticTouchIDCacheID: String?
     @objc var automaticTouchIDKeychainLabel: String?
     @objc var userData: String?
@@ -83,9 +49,10 @@ final class CPinentryRequest: NSObject {
             timeoutSeconds: timeoutSeconds > 0 ? timeoutSeconds : nil,
             keyInfo: keyInfo,
             prefersSaveInKeychain: prefersSaveInKeychain,
+            canUpdateSavedPassphraseByLabel: canUpdateSavedPassphraseByLabel,
+            oneButton: oneButton,
             prefersShowTyping: prefersShowTyping,
             attemptsAutomaticTouchID: attemptsAutomaticTouchID,
-            automaticTouchIDPrompt: automaticTouchIDPrompt,
             automaticTouchIDCacheID: automaticTouchIDCacheID,
             automaticTouchIDKeychainLabel: automaticTouchIDKeychainLabel,
             userData: userData,
@@ -147,133 +114,45 @@ final class PinentryMacSwiftRuntime: NSObject {
 
     @MainActor
     private static func present(_ request: CPinentryRequest) async -> CPinentryResponse {
-        NSLog(
-            """
-            [pinentry-mac-swift][request]
-            payload: title=%@ | message=%@ | prompt=%@ | ok=%@ | cancel=%@ | notOk=%@ | timeout=%d | userData=%@
-            l10n:
-            %@
-            """,
-            request.title ?? "<nil>",
-            request.message ?? "<nil>",
-            request.promptText ?? "<nil>",
-            request.okText ?? "<nil>",
-            request.cancelText ?? "<nil>",
-            request.notOkText ?? "<nil>",
-            request.timeoutSeconds,
-            request.userData ?? "<nil>",
-            L10n.debugLocalizationContext()
-        )
-
         let mapper = PinentryRequestMapper()
         let model = mapper.map(request.payload)
+        // The agent is only asked for a quality value (INQUIRE QUALITY) when it
+        // requested the quality bar itself; otherwise the local estimate is used.
         let qualityEstimator = PinentryInquiryQualityEstimator(
-            pinentryPointer: request.pinentryPointer
+            pinentryPointer: request.qualityBarRequested ? request.pinentryPointer : nil
         )
         let coordinator = WindowPresentationCoordinator(
             qualityEstimator: qualityEstimator
         )
-        coordinator.show(dialog: model)
+        let viewModel = coordinator.show(dialog: model)
 
-        let hostingController = PinentryHostingController(coordinator: coordinator)
-        let window = makeWindow(hostingController: hostingController)
-        hostingController.preferredSizeDidChange = { [weak window] preferredSize in
-            guard let window else {
-                return
-            }
-
-            applyPreferredWindowSize(preferredSize, to: window, animated: true)
-        }
-        applyPreferredWindowSize(preferredWindowSize(for: hostingController), to: window, animated: false)
-        window.center()
         NSApp.setActivationPolicy(.accessory)
-        NSApp.activate(ignoringOtherApps: true)
-        window.makeKeyAndOrderFront(nil)
-        window.orderFrontRegardless()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
-            coordinator.beginAutomaticTouchIDIfNeeded()
+
+        // Nothing is shown while the system Touch ID sheet is up; the alert only
+        // appears if Touch ID is unavailable, cancelled, or fails. It runs a modal
+        // loop, so it has to start after `waitForResponse` has registered itself.
+        //
+        // The modal loop must not be entered from inside a block of the GCD main queue
+        // (DispatchQueue.main.async): that queue is serial, so while such a block is
+        // running nothing else is ever taken from it, which starves everything that
+        // needs the main actor or the main queue (the countdown, the timeout that
+        // cancels the dialog). A run loop block does not hold the queue.
+        let runner = AlertDialogRunner(viewModel: viewModel)
+        coordinator.beginAutomaticTouchIDIfNeeded {
+            RunLoop.main.perform(inModes: [.common]) {
+                MainActor.assumeIsolated {
+                    runner.run()
+                }
+            }
         }
 
         let response = await coordinator.waitForResponse()
-        window.close()
 
         let bridgeResult = PinentryResultWriter().makeResult(
             from: response,
             repeatExpected: request.repeatPassphrase
         )
         return CPinentryResponse(bridgeResult: bridgeResult)
-    }
-
-    @MainActor
-    private static func makeWindow(hostingController: PinentryHostingController) -> NSWindow {
-        let window = PinentryPanelWindow(
-            contentRect: NSRect(x: 0, y: 0, width: windowMinimumContentSize.width, height: 320),
-            styleMask: [.borderless],
-            backing: .buffered,
-            defer: false
-        )
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.hasShadow = false
-        window.isReleasedWhenClosed = false
-        window.level = .modalPanel
-        window.collectionBehavior = [.moveToActiveSpace, .transient]
-        window.isMovableByWindowBackground = true
-        window.animationBehavior = .alertPanel
-
-        let hostingView = hostingController.view
-        hostingView.translatesAutoresizingMaskIntoConstraints = false
-
-        window.contentView = makeGlassContainer(
-            hostingView: hostingView,
-            frame: NSRect(origin: .zero, size: window.frame.size)
-        )
-        return window
-    }
-
-    @MainActor
-    private static func makeGlassContainer(hostingView: NSView, frame: NSRect) -> NSView {
-        PinentryMacSwiftCreateGlassContainer(hostingView, frame)
-    }
-
-    @MainActor
-    private static func preferredWindowSize(for hostingController: PinentryHostingController) -> NSSize {
-        let unconstrained = hostingController.sizeThatFits(
-            in: CGSize(
-                width: windowMaximumContentSize.width,
-                height: windowMaximumContentSize.height
-            )
-        )
-
-        return clampedWindowSize(for: NSSize(width: unconstrained.width, height: unconstrained.height))
-    }
-
-    @MainActor
-    private static func applyPreferredWindowSize(_ preferredSize: NSSize, to window: NSWindow, animated: Bool) {
-        let clampedSize = clampedWindowSize(for: preferredSize)
-        let currentFrame = window.frame
-        let windowSize = windowFrameSize(forContentSize: clampedSize)
-        let newFrame = NSRect(
-            x: currentFrame.minX,
-            y: currentFrame.maxY - windowSize.height,
-            width: windowSize.width,
-            height: windowSize.height
-        )
-        window.setFrame(newFrame, display: true, animate: animated)
-    }
-
-    private static func windowFrameSize(forContentSize contentSize: NSSize) -> NSSize {
-        NSSize(
-            width: contentSize.width + windowShadowOutset * 2,
-            height: contentSize.height + windowShadowOutset * 2
-        )
-    }
-
-    private static func clampedWindowSize(for size: NSSize) -> NSSize {
-        NSSize(
-            width: min(max(size.width, windowMinimumContentSize.width), windowMaximumContentSize.width),
-            height: min(max(size.height, 0), windowMaximumContentSize.height)
-        )
     }
 }
 

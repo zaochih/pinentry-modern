@@ -2,6 +2,7 @@
 #import <Security/Security.h>
 #import "MacOSXSwiftAppDelegate.h"
 #import "pinentry.h"
+#import "pinentry_mac_swift-Swift.h"
 
 #if __has_include("config.h")
 #import "config.h"
@@ -53,6 +54,15 @@ int main(int argc, char *argv[]) {
             return 1;
         }
 #endif
+
+        // `pinentry-modern remark ...` edits the key remarks and never talks to gpg-agent.
+        if (argc > 1 && strcmp(argv[1], "remark") == 0) {
+            NSMutableArray<NSString *> *remarkArguments = [NSMutableArray array];
+            for (int index = 2; index < argc; index++) {
+                [remarkArguments addObject:[NSString stringWithUTF8String:argv[index]] ?: @""];
+            }
+            return (int)[PinentryRemarkCommand runWithArguments:remarkArguments];
+        }
 
         pinentry_init("pinentry-modern");
         pinentry_parse_opts(argc, argv);

@@ -1,5 +1,4 @@
 "dialog.title.default" = "Pinentry Mac";
-"dialog.title.touch_id" = "Touch ID Verification";
 "dialog.action.unlock" = "OK";
 "dialog.action.allow" = "Allow";
 "dialog.action.cancel" = "Cancel";
@@ -9,6 +8,16 @@
 "dialog.prompt.confirm_format" = "Confirm %@";
 "dialog.repeat.mismatch" = "The two passphrases must match.";
 "dialog.timeout.remaining" = "This request times out in %ds.";
+"dialog.key_remark" = "This key is marked as “%@”.";
+"dialog.title.caller_uses_gpg_key" = "%@ is trying to use a GPG key";
+"dialog.title.caller_uses_ssh_key" = "%@ is trying to use an SSH key";
+"dialog.title.unlock_gpg_key" = "Unlock GPG Key";
+"dialog.title.unlock_ssh_key" = "Unlock SSH Key";
+"dialog.title.enter_passphrase" = "Enter Passphrase";
+"dialog.touch_id.for_caller" = "for %@";
+"touchid.reason.key" = "unlock the GPG key %@";
+"touchid.reason.generic" = "unlock your GPG passphrase";
+"touchid.sentence_end" = ".";
 "dialog.quality.title" = "Passphrase Strength";
 "dialog.quality.weak" = "Weak";
 "dialog.quality.fair" = "Fair";

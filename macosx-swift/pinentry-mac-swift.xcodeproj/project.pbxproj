@@ -10,10 +10,12 @@
 		A10B01000000000000000001 /* PinentryMacSwiftRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000001 /* PinentryMacSwiftRuntime.swift */; };
 		A10B01000000000000000002 /* DialogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000002 /* DialogModel.swift */; };
 		A10B01000000000000000003 /* DialogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000003 /* DialogViewModel.swift */; };
-		A10B01000000000000000004 /* PrototypeWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000004 /* PrototypeWindowView.swift */; };
+		A10B01000000000000000004 /* DialogAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000004 /* DialogAccessoryView.swift */; };
 		A10B01000000000000000005 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000005 /* Icon.icns */; };
 		A10B01000000000000000006 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000006 /* Assets.xcassets */; };
 		A10B01000000000000000009 /* QualityEstimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000A /* QualityEstimator.swift */; };
+		A10B04000000000000000001 /* KeyRemarkStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B04100000000000000001 /* KeyRemarkStore.swift */; };
+		A10B04000000000000000002 /* KeyRemarkCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B04100000000000000002 /* KeyRemarkCommand.swift */; };
 		A10B0100000000000000000A /* IconResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000B /* IconResolver.swift */; };
 		A10B0100000000000000000B /* TimeoutController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000C /* TimeoutController.swift */; };
 		A10B0100000000000000000C /* UserDataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B0010000000000000000D /* UserDataParser.swift */; };
@@ -24,11 +26,13 @@
 		A10B01000000000000000011 /* PinentryPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000012 /* PinentryPresenter.swift */; };
 		A10B01000000000000000012 /* PinentryResultWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000013 /* PinentryResultWriter.swift */; };
 		A10B01000000000000000013 /* WindowPresentationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000014 /* WindowPresentationCoordinator.swift */; };
+		A10B04000000000000000003 /* AlertDialogRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B04100000000000000003 /* AlertDialogRunner.swift */; };
 		A10B01000000000000000014 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000015 /* Localization.swift */; };
 		A10B01000000000000000015 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = A10B00100000000000000018 /* Localizable.strings */; };
 		A10B02000000000000000001 /* MacOSXSwiftMain.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000001 /* MacOSXSwiftMain.m */; };
 		A10B02000000000000000002 /* MacOSXSwiftAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */; };
 		A10B02000000000000000003 /* PinentryCHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000005 /* PinentryCHandler.m */; };
+		A10B04000000000000000004 /* KeychainLabelUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B04100000000000000004 /* KeychainLabelUpdate.m */; };
 		A10B02000000000000000004 /* KeychainSupport.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B02100000000000000008 /* KeychainSupport.m */; };
 		A10B02000000000000000005 /* NSStringExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = A10B0210000000000000000A /* NSStringExtensions.m */; };
 /* End PBXBuildFile section */
@@ -38,11 +42,13 @@
 		A10B00100000000000000001 /* PinentryMacSwiftRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryMacSwiftRuntime.swift; sourceTree = "<group>"; };
 		A10B00100000000000000002 /* DialogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogModel.swift; sourceTree = "<group>"; };
 		A10B00100000000000000003 /* DialogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogViewModel.swift; sourceTree = "<group>"; };
-		A10B00100000000000000004 /* PrototypeWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrototypeWindowView.swift; sourceTree = "<group>"; };
+		A10B00100000000000000004 /* DialogAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogAccessoryView.swift; sourceTree = "<group>"; };
 		A10B00100000000000000005 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
 		A10B00100000000000000006 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A10B00100000000000000008 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10B0010000000000000000A /* QualityEstimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QualityEstimator.swift; sourceTree = "<group>"; };
+		A10B04100000000000000001 /* KeyRemarkStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyRemarkStore.swift; sourceTree = "<group>"; };
+		A10B04100000000000000002 /* KeyRemarkCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyRemarkCommand.swift; sourceTree = "<group>"; };
 		A10B0010000000000000000B /* IconResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconResolver.swift; sourceTree = "<group>"; };
 		A10B0010000000000000000C /* TimeoutController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeoutController.swift; sourceTree = "<group>"; };
 		A10B0010000000000000000D /* UserDataParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataParser.swift; sourceTree = "<group>"; };
@@ -53,6 +59,7 @@
 		A10B00100000000000000012 /* PinentryPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryPresenter.swift; sourceTree = "<group>"; };
 		A10B00100000000000000013 /* PinentryResultWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinentryResultWriter.swift; sourceTree = "<group>"; };
 		A10B00100000000000000014 /* WindowPresentationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowPresentationCoordinator.swift; sourceTree = "<group>"; };
+		A10B04100000000000000003 /* AlertDialogRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertDialogRunner.swift; sourceTree = "<group>"; };
 		A10B00100000000000000015 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		A10B00100000000000000016 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		A10B00100000000000000017 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -61,6 +68,8 @@
 		A10B02100000000000000003 /* MacOSXSwiftAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MacOSXSwiftAppDelegate.m; sourceTree = "<group>"; };
 		A10B02100000000000000004 /* PinentryCBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PinentryCBridge.h; sourceTree = "<group>"; };
 		A10B02100000000000000005 /* PinentryCHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PinentryCHandler.m; sourceTree = "<group>"; };
+		A10B04100000000000000004 /* KeychainLabelUpdate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KeychainLabelUpdate.m; sourceTree = "<group>"; };
+		A10B04100000000000000005 /* KeychainLabelUpdate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KeychainLabelUpdate.h; sourceTree = "<group>"; };
 		A10B02100000000000000006 /* PinentryMacSwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PinentryMacSwift-Bridging-Header.h"; sourceTree = "<group>"; };
 		A10B02100000000000000007 /* KeychainSupport.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ../macosx/KeychainSupport.h; sourceTree = "<group>"; };
 		A10B02100000000000000008 /* KeychainSupport.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ../macosx/KeychainSupport.m; sourceTree = "<group>"; };
@@ -136,7 +145,7 @@
 		A10B000F0000000000000019 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				A10B00100000000000000004 /* PrototypeWindowView.swift */,
+				A10B00100000000000000004 /* DialogAccessoryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -145,6 +154,8 @@
 			isa = PBXGroup;
 			children = (
 				A10B0010000000000000000A /* QualityEstimator.swift */,
+				A10B04100000000000000001 /* KeyRemarkStore.swift */,
+				A10B04100000000000000002 /* KeyRemarkCommand.swift */,
 				A10B0010000000000000000B /* IconResolver.swift */,
 				A10B0010000000000000000C /* TimeoutController.swift */,
 				A10B0010000000000000000D /* UserDataParser.swift */,
@@ -163,8 +174,11 @@
 				A10B00100000000000000012 /* PinentryPresenter.swift */,
 				A10B00100000000000000013 /* PinentryResultWriter.swift */,
 				A10B00100000000000000014 /* WindowPresentationCoordinator.swift */,
+				A10B04100000000000000003 /* AlertDialogRunner.swift */,
 				A10B02100000000000000004 /* PinentryCBridge.h */,
 				A10B02100000000000000005 /* PinentryCHandler.m */,
+				A10B04100000000000000004 /* KeychainLabelUpdate.m */,
+				A10B04100000000000000005 /* KeychainLabelUpdate.h */,
 			);
 			path = Bridge;
 			sourceTree = "<group>";
@@ -309,8 +323,10 @@
 				A10B01000000000000000001 /* PinentryMacSwiftRuntime.swift in Sources */,
 				A10B01000000000000000002 /* DialogModel.swift in Sources */,
 				A10B01000000000000000003 /* DialogViewModel.swift in Sources */,
-				A10B01000000000000000004 /* PrototypeWindowView.swift in Sources */,
+				A10B01000000000000000004 /* DialogAccessoryView.swift in Sources */,
 				A10B01000000000000000009 /* QualityEstimator.swift in Sources */,
+				A10B04000000000000000001 /* KeyRemarkStore.swift in Sources */,
+				A10B04000000000000000002 /* KeyRemarkCommand.swift in Sources */,
 				A10B0100000000000000000A /* IconResolver.swift in Sources */,
 				A10B0100000000000000000B /* TimeoutController.swift in Sources */,
 				A10B0100000000000000000C /* UserDataParser.swift in Sources */,
@@ -321,8 +337,10 @@
 				A10B01000000000000000011 /* PinentryPresenter.swift in Sources */,
 				A10B01000000000000000012 /* PinentryResultWriter.swift in Sources */,
 				A10B01000000000000000013 /* WindowPresentationCoordinator.swift in Sources */,
+				A10B04000000000000000003 /* AlertDialogRunner.swift in Sources */,
 				A10B01000000000000000014 /* Localization.swift in Sources */,
 				A10B02000000000000000003 /* PinentryCHandler.m in Sources */,
+				A10B04000000000000000004 /* KeychainLabelUpdate.m in Sources */,
 				A10B02000000000000000004 /* KeychainSupport.m in Sources */,
 				A10B02000000000000000005 /* NSStringExtensions.m in Sources */,
 			);

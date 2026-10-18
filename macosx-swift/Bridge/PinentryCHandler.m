@@ -1,11 +1,10 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
-#import <LocalAuthentication/LocalAuthentication.h>
 #import <QuartzCore/QuartzCore.h>
-#import <dlfcn.h>
-#import <libproc.h>
+#import <sys/sysctl.h>
 #import "pinentry.h"
 #import "KeychainSupport.h"
+#import "KeychainLabelUpdate.h"
 #import "NSStringExtensions.h"
 #import "pinentry_mac_swift-Swift.h"
 
@@ -25,213 +24,17 @@ int PinentryMacSwiftCopyParentProcessID(int processID) {
         return 0;
     }
 
-    struct proc_bsdinfo processInfo;
-    int bytesRead = proc_pidinfo(processID, PROC_PIDTBSDINFO, 0, &processInfo, PROC_PIDTBSDINFO_SIZE);
-    if (bytesRead != PROC_PIDTBSDINFO_SIZE) {
+    // sysctl works for any process; proc_pidinfo fails for root-owned ones such as
+    // `login`, which sits between a terminal app and its shell and would cut the
+    // walk up to the calling application short.
+    struct kinfo_proc processInfo;
+    size_t size = sizeof(processInfo);
+    int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, processID };
+    if (sysctl(mib, 4, &processInfo, &size, NULL, 0) != 0 || size == 0) {
         return 0;
     }
 
-    return processInfo.pbi_ppid;
-}
-
-static BOOL PinentryMacSwiftIsAtLeastMacOS(NSInteger majorVersion, NSInteger minorVersion) {
-    NSOperatingSystemVersion version = {
-        .majorVersion = majorVersion,
-        .minorVersion = minorVersion,
-        .patchVersion = 0,
-    };
-    return [[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:version];
-}
-
-static CGFloat PinentryMacSwiftDialogCornerRadius(void) {
-    return PinentryMacSwiftIsAtLeastMacOS(26, 0) ? 26.0 : 16.0;
-}
-
-static CGFloat PinentryMacSwiftDialogShadowOutset(void) {
-    return 18.0;
-}
-
-@interface PinentryMacSwiftShadowContainerView : NSView
-@end
-
-@implementation PinentryMacSwiftShadowContainerView
-
-- (instancetype)initWithFrame:(NSRect)frameRect {
-    self = [super initWithFrame:frameRect];
-    if (self) {
-        self.wantsLayer = YES;
-        self.layer.masksToBounds = NO;
-        self.layer.shadowColor = NSColor.blackColor.CGColor;
-        self.layer.shadowOpacity = 0.20;
-        self.layer.shadowRadius = 8.0;
-        self.layer.shadowOffset = NSMakeSize(0.0, -3.0);
-    }
-    return self;
-}
-
-- (void)layout {
-    [super layout];
-    [self updateShadowPath];
-}
-
-- (void)setFrameSize:(NSSize)newSize {
-    [super setFrameSize:newSize];
-    [self updateShadowPath];
-}
-
-- (void)updateShadowPath {
-    if (!self.layer) {
-        return;
-    }
-
-    CGRect shadowRect = NSRectToCGRect(NSInsetRect(self.bounds, PinentryMacSwiftDialogShadowOutset(), PinentryMacSwiftDialogShadowOutset()));
-    CGPathRef shadowPath = CGPathCreateWithRoundedRect(
-        shadowRect,
-        PinentryMacSwiftDialogCornerRadius(),
-        PinentryMacSwiftDialogCornerRadius(),
-        NULL
-    );
-    self.layer.shadowPath = shadowPath;
-    CGPathRelease(shadowPath);
-}
-
-@end
-
-static void PinentryMacSwiftClipViewToDialogCornerRadius(NSView *view) {
-    view.wantsLayer = YES;
-    view.layer.cornerRadius = PinentryMacSwiftDialogCornerRadius();
-    view.layer.masksToBounds = YES;
-    if ([view.layer respondsToSelector:@selector(setCornerCurve:)]) {
-        view.layer.cornerCurve = kCACornerCurveContinuous;
-    }
-}
-
-static void PinentryMacSwiftPinSubview(NSView *subview, NSView *container) {
-    subview.translatesAutoresizingMaskIntoConstraints = NO;
-    [container addSubview:subview];
-    [NSLayoutConstraint activateConstraints:@[
-        [subview.leadingAnchor constraintEqualToAnchor:container.leadingAnchor],
-        [subview.trailingAnchor constraintEqualToAnchor:container.trailingAnchor],
-        [subview.topAnchor constraintEqualToAnchor:container.topAnchor],
-        [subview.bottomAnchor constraintEqualToAnchor:container.bottomAnchor],
-    ]];
-}
-
-static void PinentryMacSwiftPinSubviewWithInset(NSView *subview, NSView *container, CGFloat inset) {
-    subview.translatesAutoresizingMaskIntoConstraints = NO;
-    [container addSubview:subview];
-    [NSLayoutConstraint activateConstraints:@[
-        [subview.leadingAnchor constraintEqualToAnchor:container.leadingAnchor constant:inset],
-        [subview.trailingAnchor constraintEqualToAnchor:container.trailingAnchor constant:-inset],
-        [subview.topAnchor constraintEqualToAnchor:container.topAnchor constant:inset],
-        [subview.bottomAnchor constraintEqualToAnchor:container.bottomAnchor constant:-inset],
-    ]];
-}
-
-static NSView *PinentryMacSwiftWrapDialogSurface(NSView *surfaceView, NSRect frame, BOOL clipsSurfaceView) {
-    PinentryMacSwiftShadowContainerView *shadowContainer = [[PinentryMacSwiftShadowContainerView alloc] initWithFrame:frame];
-    NSView *dialogSurfaceView = surfaceView;
-
-    if (clipsSurfaceView) {
-        NSView *roundedContainer = [[NSView alloc] initWithFrame:NSZeroRect];
-        PinentryMacSwiftClipViewToDialogCornerRadius(roundedContainer);
-        PinentryMacSwiftPinSubview(surfaceView, roundedContainer);
-        dialogSurfaceView = roundedContainer;
-    }
-
-    PinentryMacSwiftPinSubviewWithInset(dialogSurfaceView, shadowContainer, PinentryMacSwiftDialogShadowOutset());
-    return shadowContainer;
-}
-
-NSView *PinentryMacSwiftCreateGlassContainer(NSView *hostingView, NSRect frame) {
-    if (PinentryMacSwiftIsAtLeastMacOS(26, 0)) {
-        Class glassEffectViewClass = NSClassFromString(@"NSGlassEffectView");
-        if (glassEffectViewClass != Nil) {
-            id glassView = [[glassEffectViewClass alloc] initWithFrame:frame];
-            if ([glassView isKindOfClass:[NSView class]]) {
-                if ([glassView respondsToSelector:@selector(setContentView:)]) {
-                    [glassView setValue:hostingView forKey:@"contentView"];
-                } else {
-                    PinentryMacSwiftPinSubview(hostingView, glassView);
-                }
-
-                if ([glassView respondsToSelector:@selector(setCornerRadius:)]) {
-                    [glassView setValue:@(PinentryMacSwiftDialogCornerRadius()) forKey:@"cornerRadius"];
-                }
-                if ([glassView respondsToSelector:@selector(setStyle:)]) {
-                    [glassView setValue:@0 forKey:@"style"];
-                }
-                if ([glassView respondsToSelector:@selector(setTintColor:)]) {
-                    [glassView setValue:[NSColor.whiteColor colorWithAlphaComponent:0.12] forKey:@"tintColor"];
-                }
-                if (
-                    PinentryMacSwiftIsAtLeastMacOS(27, 0) &&
-                    [glassView respondsToSelector:@selector(setEffectIsInteractive:)]
-                ) {
-                    [glassView setValue:@YES forKey:@"effectIsInteractive"];
-                }
-
-                return PinentryMacSwiftWrapDialogSurface(glassView, frame, YES);
-            }
-        }
-    }
-
-    NSVisualEffectView *effectView = [[NSVisualEffectView alloc] initWithFrame:frame];
-    effectView.material = NSVisualEffectMaterialHUDWindow;
-    effectView.blendingMode = NSVisualEffectBlendingModeBehindWindow;
-    effectView.state = NSVisualEffectStateActive;
-    effectView.wantsLayer = YES;
-    effectView.layer.cornerRadius = PinentryMacSwiftDialogCornerRadius();
-    effectView.layer.masksToBounds = YES;
-    effectView.layer.borderWidth = 1;
-    effectView.layer.borderColor = [NSColor.whiteColor colorWithAlphaComponent:0.16].CGColor;
-
-    PinentryMacSwiftPinSubview(hostingView, effectView);
-    return PinentryMacSwiftWrapDialogSurface(effectView, frame, NO);
-}
-
-static Class PinentryMacSwiftAuthenticationViewClass(void) {
-    static dispatch_once_t onceToken;
-    static Class authenticationViewClass = Nil;
-
-    dispatch_once(&onceToken, ^{
-        dlopen(
-            "/System/Library/Frameworks/LocalAuthenticationEmbeddedUI.framework/Versions/A/LocalAuthenticationEmbeddedUI",
-            RTLD_LAZY | RTLD_LOCAL
-        );
-        authenticationViewClass = NSClassFromString(@"LAAuthenticationView");
-    });
-
-    return authenticationViewClass;
-}
-
-BOOL PinentryMacSwiftCanCreateAuthenticationView(void) {
-    Class authenticationViewClass = PinentryMacSwiftAuthenticationViewClass();
-    return authenticationViewClass != Nil &&
-        [authenticationViewClass instancesRespondToSelector:@selector(initWithContext:controlSize:)];
-}
-
-NSView *PinentryMacSwiftCreateAuthenticationView(LAContext *context, NSControlSize controlSize) {
-    if (!context) {
-        return nil;
-    }
-
-    Class authenticationViewClass = PinentryMacSwiftAuthenticationViewClass();
-    SEL initializer = @selector(initWithContext:controlSize:);
-    if (authenticationViewClass == Nil ||
-        ![authenticationViewClass instancesRespondToSelector:initializer]) {
-        return nil;
-    }
-
-    id allocatedView = [authenticationViewClass alloc];
-    typedef id (*InitializerIMP)(id, SEL, LAContext *, NSControlSize);
-    InitializerIMP initializerIMP = (InitializerIMP)[allocatedView methodForSelector:initializer];
-    id authenticationView = initializerIMP(allocatedView, initializer, context, controlSize);
-    if (![authenticationView isKindOfClass:[NSView class]]) {
-        return nil;
-    }
-
-    return authenticationView;
+    return processInfo.kp_eproc.e_ppid;
 }
 
 static NSString *StringFromPinentryCString(char *string) {
@@ -263,6 +66,8 @@ static NSString *CacheIdFromKeyInfo(NSString *keyInfo) {
 
     return [keyInfo substringFromIndex:2];
 }
+
+static NSString *KeyIDFromDescription(NSArray<NSString *> *lines);
 
 static void FillIdentityFromDescription(CPinentryRequest *request, NSString *description) {
     NSArray *lines = [description componentsSeparatedByString:@"\n"];
@@ -297,27 +102,39 @@ static void FillIdentityFromDescription(CPinentryRequest *request, NSString *des
         request.name = workString;
     }
 
-    NSString *keyID = [description stringBetweenString:@"ID " andString:@"," needEnd:YES];
-    if (keyID.length == 8 || keyID.length == 16) {
-        request.keyID = keyID;
-    }
+    request.keyID = KeyIDFromDescription(lines) ?: @"";
 }
 
+// The key line ("255-bit EDDSA key, ID 6713E2BCD4E25630,") follows the question and the
+// quoted user ID. The user ID is skipped because it may itself contain "ID ", and a
+// "0x" prefix (gpg --keyid-format 0xlong) is accepted.
+static NSString *KeyIDFromDescription(NSArray<NSString *> *lines) {
+    NSCharacterSet *nonHex = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789abcdefABCDEF"] invertedSet];
+
+    for (NSUInteger index = 2; index < lines.count; index++) {
+        NSString *candidate = [[lines[index] stringBetweenString:@"ID " andString:@"," needEnd:YES]
+                               stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceCharacterSet];
+        if ([candidate hasPrefix:@"0x"] || [candidate hasPrefix:@"0X"]) {
+            candidate = [candidate substringFromIndex:2];
+        }
+
+        if ((candidate.length == 8 || candidate.length == 16) &&
+            [candidate rangeOfCharacterFromSet:nonHex].location == NSNotFound) {
+            return candidate;
+        }
+    }
+
+    return nil;
+}
+
+// The label of a saved item is "name <email> (key id)". Without a key id it would be
+// shared by every key of the same user ID, so no label is built at all then.
 static NSString *KeychainLabelForRequest(CPinentryRequest *request) {
-    if (request.userID.length == 0) {
+    if (request.userID.length == 0 || request.keyID.length == 0) {
         return nil;
     }
 
     return [NSString stringWithFormat:@"%@ <%@> (%@)", request.name, request.email, request.keyID];
-}
-
-static NSString *AutomaticTouchIDPromptForRequest(CPinentryRequest *request) {
-    NSString *label = KeychainLabelForRequest(request);
-    if (label.length > 0) {
-        return [NSString stringWithFormat:@"Unlock %@.", label];
-    }
-
-    return @"Unlock your GPG passphrase.";
 }
 
 static CPinentryRequest *MakeRequest(pinentry_t pe) {
@@ -337,6 +154,7 @@ static CPinentryRequest *MakeRequest(pinentry_t pe) {
     request.timeoutSeconds = pe->timeout;
     request.keyInfo = StringFromPinentryCString(pe->keyinfo);
     request.prefersSaveInKeychain = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseKeychain"];
+    request.oneButton = pe->one_button != 0;
     request.prefersShowTyping = NO;
     request.userData = StringFromEnvironment("PINENTRY_USER_DATA");
     request.ownerPID = pe->owner_pid > 0 ? (NSInteger)pe->owner_pid : 0;
@@ -379,29 +197,45 @@ static int pinentry_mac_swift_cmd_handler(pinentry_t pe) {
             cacheId = nil;
         }
 
-        if (
-            request.requiresPassphrase &&
+        BOOL canUseSavedPassphrase = request.requiresPassphrase && !request.repeatPassphrase;
+
+        BOOL hasCacheItem =
+            canUseSavedPassphrase &&
             cacheId &&
             !pe->error &&
-            !request.repeatPassphrase &&
             !lastTryWasKeychain &&
-            hasPassphraseInKeychain(cacheId)
+            hasPassphraseInKeychain(cacheId);
+
+        // Without a cache id (SETKEYINFO --clear: export, new subkey, change passphrase),
+        // or without an item for it, a saved item can only be reached by its label, and
+        // only when exactly one item has it. The lookup is made at most once per request
+        // and not at all on a retry that has a cache id, where its result would not be used.
+        BOOL hasLabelItem = NO;
+        if (
+            canUseSavedPassphrase &&
+            !hasCacheItem &&
+            !doNotUseKeychain &&
+            keychainLabel.length > 0 &&
+            (!cacheId || !pe->error)
         ) {
+            hasLabelItem = PinentryCountSavedPassphrasesWithLabel(keychainLabel) == 1;
+        }
+
+        if (hasCacheItem) {
             request.attemptsAutomaticTouchID = YES;
             request.automaticTouchIDCacheID = cacheId;
-            request.automaticTouchIDPrompt = AutomaticTouchIDPromptForRequest(request);
             request.automaticTouchIDKeychainLabel = keychainLabel;
-        } else if (
-            request.requiresPassphrase &&
-            keychainLabel.length > 0 &&
-            !pe->error &&
-            !request.repeatPassphrase &&
-            hasPassphraseInKeychainWithLabel(keychainLabel)
-        ) {
+        } else if (hasLabelItem && !pe->error) {
             request.attemptsAutomaticTouchID = YES;
-            request.automaticTouchIDPrompt = AutomaticTouchIDPromptForRequest(request);
             request.automaticTouchIDKeychainLabel = keychainLabel;
         }
+
+        // The item filled in by label can be corrected after gpg-agent rejected it: only
+        // that retry dialog offers to save, and only then is the item updated. A typo in a
+        // first attempt must not replace a passphrase that still works, and without this
+        // a stale passphrase would be filled in again on every request.
+        BOOL canUpdateByLabel = hasLabelItem && !cacheId && pe->error != NULL;
+        request.canUpdateSavedPassphraseByLabel = canUpdateByLabel;
 
         CPinentryResponse *response = [PinentryMacSwiftRuntime runRequest:request];
 
@@ -433,6 +267,13 @@ static int pinentry_mac_swift_cmd_handler(pinentry_t pe) {
 
             if (cacheId && response.saveInKeychain && response.passphrase.length > 0) {
                 storePassphraseInKeychain(cacheId, response.passphrase, keychainLabel);
+            } else if (
+                canUpdateByLabel &&
+                !response.keychainUnusable &&
+                response.saveInKeychain &&
+                response.passphrase.length > 0
+            ) {
+                PinentryUpdateSavedPassphraseByLabel(keychainLabel, response.passphrase);
             }
 
             return length;

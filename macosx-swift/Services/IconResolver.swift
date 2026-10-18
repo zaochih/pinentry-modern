@@ -4,7 +4,12 @@ protocol IconResolving {
     func resolve(_ source: DialogModel.IconSource) -> NSImage?
 }
 
-struct IconResolver: IconResolving {
+protocol CallerNameResolving {
+    /// Name of the application that (indirectly) started the process `ownerPID`.
+    func callerName(ownerPID: Int) -> String?
+}
+
+struct IconResolver: IconResolving, CallerNameResolving {
     func resolve(_ source: DialogModel.IconSource) -> NSImage? {
         switch source {
         case .systemSymbol:
@@ -14,7 +19,7 @@ struct IconResolver: IconResolving {
         case .filePath(let path):
             return NSImage(contentsOfFile: path)
         case .ownerProcessID(let processID):
-            return resolveCallerApplicationIcon(ownerPID: processID)
+            return callerApplication(ownerPID: processID).flatMap(icon(for:))
         case .appIcon:
             if let image = AppRuntimeBundle.bundle.image(forResource: NSImage.Name("Icon")) {
                 return image
@@ -24,13 +29,22 @@ struct IconResolver: IconResolving {
         }
     }
 
-    private func resolveCallerApplicationIcon(ownerPID: Int) -> NSImage? {
+    func callerName(ownerPID: Int) -> String? {
+        callerApplication(ownerPID: ownerPID)?.localizedName
+    }
+
+    /// Walks up from the requesting process (for gpg-agent that is the `gpg`
+    /// process) until it reaches a real application, e.g. the terminal.
+    private func callerApplication(ownerPID: Int) -> NSRunningApplication? {
         var currentPID = ownerPID
         var visited = Set<Int>()
 
         while currentPID > 1, visited.insert(currentPID).inserted, visited.count <= 12 {
-            if let icon = resolveRunningApplicationIcon(processID: currentPID) {
-                return icon
+            if
+                let application = NSRunningApplication(processIdentifier: pid_t(currentPID)),
+                application.bundleIdentifier != AppRuntimeBundle.bundle.bundleIdentifier
+            {
+                return application
             }
 
             let parentPID = Int(PinentryMacSwiftCopyParentProcessID(Int32(currentPID)))
@@ -44,19 +58,7 @@ struct IconResolver: IconResolving {
         return nil
     }
 
-    private func resolveRunningApplicationIcon(processID: Int) -> NSImage? {
-        let pid = pid_t(processID)
-        guard let application = NSRunningApplication(processIdentifier: pid) else {
-            return nil
-        }
-
-        if
-            let bundleIdentifier = application.bundleIdentifier,
-            bundleIdentifier == AppRuntimeBundle.bundle.bundleIdentifier
-        {
-            return nil
-        }
-
+    private func icon(for application: NSRunningApplication) -> NSImage? {
         if
             let bundleURL = preferredApplicationBundleURL(for: application.bundleURL)
         {

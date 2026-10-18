@@ -14,9 +14,10 @@ struct PinentryRequestPayload: Equatable {
     let timeoutSeconds: Int?
     let keyInfo: String?
     let prefersSaveInKeychain: Bool
+    let canUpdateSavedPassphraseByLabel: Bool
+    let oneButton: Bool
     let prefersShowTyping: Bool
     let attemptsAutomaticTouchID: Bool
-    let automaticTouchIDPrompt: String?
     let automaticTouchIDCacheID: String?
     let automaticTouchIDKeychainLabel: String?
     let userData: String?
