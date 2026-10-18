@@ -265,7 +265,11 @@ static int pinentry_mac_swift_cmd_handler(pinentry_t pe) {
                 }
             }
 
-            if (cacheId && response.saveInKeychain && response.passphrase.length > 0) {
+            // An item that was offered for Touch ID and then not used (cancelled, or "Use
+            // Password") still works as far as is known; what was typed instead has not
+            // been verified by gpg-agent yet and must not replace it. If it turns out
+            // wrong, the retry dialog (pe->error, no item offered) saves it.
+            if (cacheId && !hasCacheItem && response.saveInKeychain && response.passphrase.length > 0) {
                 storePassphraseInKeychain(cacheId, response.passphrase, keychainLabel);
             } else if (
                 canUpdateByLabel &&

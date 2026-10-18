@@ -85,7 +85,8 @@ struct PinentryRequestMapper {
                 ? Self.touchIDPrompt(
                     label: payload.automaticTouchIDKeychainLabel,
                     caller: callerName(for: payload),
-                    remark: keyRemark
+                    remark: keyRemark,
+                    isSSH: cachePolicy.descriptor(for: payload.keyInfo).cacheMode == .ssh
                 )
                 : nil,
             automaticTouchIDCacheID: payload.automaticTouchIDCacheID,
@@ -152,8 +153,8 @@ struct PinentryRequestMapper {
     /// process, so who is asking goes at the end of the first sentence and the remark in
     /// a second paragraph. The system appends its own final period, hence the one in the
     /// remark sentence is dropped while the first paragraph gets one.
-    private static func touchIDPrompt(label: String?, caller: String?, remark: String?) -> String {
-        var reason = label?.nonEmpty.map { L10n.touchIDReason(forKey: $0) } ?? L10n.touchIDReasonGeneric
+    private static func touchIDPrompt(label: String?, caller: String?, remark: String?, isSSH: Bool) -> String {
+        var reason = label?.nonEmpty.map { L10n.touchIDReason(forKey: $0) } ?? L10n.touchIDReasonGeneric(isSSH: isSSH)
 
         if let caller {
             reason += " \(L10n.touchIDForCaller(caller))"

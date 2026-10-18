@@ -17,6 +17,7 @@
 "dialog.touch_id.for_caller" = "（%@ 发起）";
 "touchid.reason.key" = "解锁 GPG 密钥 %@";
 "touchid.reason.generic" = "解锁你的 GPG 口令";
+"touchid.reason.generic_ssh" = "解锁你的 SSH 密钥口令";
 "touchid.sentence_end" = "。";
 "dialog.quality.title" = "口令强度";
 "dialog.quality.weak" = "弱";
@@ -25,10 +26,8 @@
 "dialog.quality.strong" = "强";
 "dialog.option.show_typing" = "显示输入内容";
 "dialog.option.save_in_keychain" = "保存到钥匙串";
-"dialog.empty.title" = "当前没有待处理的 Pinentry 请求";
-"dialog.empty.message" = "下一个对话框会显示在这里。";
-"app.alert.integrity.title" = "检测到 Pinentry Mac 安装已被篡改！";
-"app.alert.integrity.message" = "为保证安全，Pinentry Mac 将立即退出。";
+"app.alert.integrity.title" = "检测到 Pinentry Modern 安装已被篡改！";
+"app.alert.integrity.message" = "为保证安全，Pinentry Modern 将立即退出。";
 "known.action.allow" = "允许";
 "known.action.cancel" = "取消";
 "known.action.confirm" = "确认";

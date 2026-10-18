@@ -1,4 +1,4 @@
-"dialog.title.default" = "Pinentry Mac";
+"dialog.title.default" = "Pinentry Modern";
 "dialog.action.unlock" = "OK";
 "dialog.action.allow" = "Allow";
 "dialog.action.cancel" = "Cancel";
@@ -17,6 +17,7 @@
 "dialog.touch_id.for_caller" = "for %@";
 "touchid.reason.key" = "unlock the GPG key %@";
 "touchid.reason.generic" = "unlock your GPG passphrase";
+"touchid.reason.generic_ssh" = "unlock your SSH key passphrase";
 "touchid.sentence_end" = ".";
 "dialog.quality.title" = "Passphrase Strength";
 "dialog.quality.weak" = "Weak";
@@ -25,10 +26,8 @@
 "dialog.quality.strong" = "Strong";
 "dialog.option.show_typing" = "Show typing";
 "dialog.option.save_in_keychain" = "Save in Keychain";
-"dialog.empty.title" = "No active pinentry request";
-"dialog.empty.message" = "The presentation coordinator will attach the next dialog here.";
-"app.alert.integrity.title" = "Someone tampered with your installation of Pinentry Mac!";
-"app.alert.integrity.message" = "To keep you safe, Pinentry Mac will exit now.";
+"app.alert.integrity.title" = "Someone tampered with your installation of Pinentry Modern!";
+"app.alert.integrity.message" = "To keep you safe, Pinentry Modern will exit now.";
 "known.action.allow" = "Allow";
 "known.action.cancel" = "Cancel";
 "known.action.confirm" = "Confirm";

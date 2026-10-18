@@ -30,7 +30,21 @@ struct IconResolver: IconResolving, CallerNameResolving {
     }
 
     func callerName(ownerPID: Int) -> String? {
-        callerApplication(ownerPID: ownerPID)?.localizedName
+        guard let application = callerApplication(ownerPID: ownerPID) else {
+            return nil
+        }
+
+        // Named after the same bundle the icon comes from: inside Electron apps the
+        // matched process is a helper ("Code Helper (Plugin)"), the app is "Code".
+        if let bundleURL = preferredApplicationBundleURL(for: application.bundleURL) {
+            let name = FileManager.default.displayName(atPath: bundleURL.path)
+            let trimmed = name.hasSuffix(".app") ? String(name.dropLast(4)) : name
+            if !trimmed.isEmpty {
+                return trimmed
+            }
+        }
+
+        return application.localizedName
     }
 
     /// Walks up from the requesting process (for gpg-agent that is the `gpg`

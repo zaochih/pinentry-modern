@@ -121,8 +121,10 @@ struct FileKeyRemarkStore: KeyRemarkEditing {
     }
 
     func allRemarks() throws -> [String: String] {
+        // Sorted so that two spellings of the same key in a hand-edited file resolve the
+        // same way every time.
         var result: [String: String] = [:]
-        for (key, value) in try load() {
+        for (key, value) in try load().sorted(by: { $0.key < $1.key }) {
             result[KeyID.normalize(key) ?? key] = value
         }
         return result
@@ -182,18 +184,33 @@ struct FileKeyRemarkStore: KeyRemarkEditing {
     }
 
     private func save(_ remarks: [String: String]) throws {
-        try FileManager.default.createDirectory(
-            at: url.deletingLastPathComponent(),
+        let directory = url.deletingLastPathComponent()
+        let fileManager = FileManager.default
+        try fileManager.createDirectory(
+            at: directory,
             withIntermediateDirectories: true,
             attributes: [.posixPermissions: 0o700]
         )
+        // Also for a directory that already existed.
+        try fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: directory.path)
 
         var data = try JSONSerialization.data(
             withJSONObject: remarks,
             options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         )
         data.append(0x0A)
-        try data.write(to: url, options: .atomic)
-        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
+
+        // Written to a 0600 temporary file next to the target and moved into place, so the
+        // content is never readable by others, not even briefly.
+        let temporary = directory.appendingPathComponent(".remarks-\(UUID().uuidString).tmp")
+        guard fileManager.createFile(atPath: temporary.path, contents: data, attributes: [.posixPermissions: 0o600]) else {
+            throw KeyRemarkError.unreadableFile(temporary, underlying: CocoaError(.fileWriteUnknown))
+        }
+        do {
+            _ = try fileManager.replaceItemAt(url, withItemAt: temporary)
+        } catch {
+            try? fileManager.removeItem(at: temporary)
+            throw error
+        }
     }
 }

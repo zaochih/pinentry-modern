@@ -108,6 +108,7 @@ BOOL hasPassphraseInKeychainWithLabel(NSString *label) {
 								kSecMatchLimitOne, kSecMatchLimit,
 								kCFBooleanFalse, kSecReturnData,
 								keychainRef, kSecUseKeychain,
+								@[(__bridge id)keychainRef], kSecMatchSearchList,
 								nil];
 
 	OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)attributes, nil);
@@ -203,6 +204,9 @@ NSString *getPassphraseFromKeychainWithLabel(NSString *label, BOOL *keychainUnus
 								label, kSecAttrLabel,
 								kSecMatchLimitOne, kSecMatchLimit,
 								keychainRef, kSecUseKeychain,
+								// kSecUseKeychain is ignored when reading; without this a
+								// same-labelled item in another keychain could be returned.
+								@[(__bridge id)keychainRef], kSecMatchSearchList,
 								nil];
 	NSString *passphrase = PassphraseFromKeychainQuery(attributes, keychainUnusable);
 

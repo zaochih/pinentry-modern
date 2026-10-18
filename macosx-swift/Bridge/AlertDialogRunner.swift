@@ -82,9 +82,11 @@ final class AlertDialogRunner {
                     return
                 }
 
+                // Not triggered by an event, and `stopModal` only works as the result of
+                // one; the alert would stay up until the next mouse move or key press.
                 DispatchQueue.main.async {
                     if self?.isRunning == true {
-                        NSApp.stopModal()
+                        NSApp.abortModal()
                     }
                 }
             }
@@ -141,7 +143,8 @@ final class AlertDialogRunner {
             // `confirm()` refuses while the repeat field differs; `run()` then shows the alert again.
             actions[index]()
         } else {
-            viewModel.decline()
+            // Aborted or stopped by something other than a button: not an answer of "no".
+            viewModel.cancel()
         }
     }
 
@@ -162,10 +165,12 @@ final class AlertDialogRunner {
             roots.append(frameView)
         }
 
+        // Private accessor: called through the selector (KVC could raise an exception
+        // that Swift cannot catch) and the result is type-checked.
         let childAccessor = NSSelectorFromString("_glassEffectChildWindow")
         if
             window.responds(to: childAccessor),
-            let childWindow = window.value(forKey: "_glassEffectChildWindow") as? NSWindow,
+            let childWindow = window.perform(childAccessor)?.takeUnretainedValue() as? NSWindow,
             let content = childWindow.contentView
         {
             roots.append(content)

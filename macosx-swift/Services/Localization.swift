@@ -78,7 +78,7 @@ enum L10n {
     }
 
     static var defaultDialogTitle: String {
-        tr("dialog.title.default", fallback: "Pinentry Mac")
+        tr("dialog.title.default", fallback: "Pinentry Modern")
     }
 
     /// The system sheet reads "<app> is trying to <reason>.", so the reason is a verb
@@ -87,8 +87,10 @@ enum L10n {
         format("touchid.reason.key", fallback: "unlock the GPG key %@", label)
     }
 
-    static var touchIDReasonGeneric: String {
-        tr("touchid.reason.generic", fallback: "unlock your GPG passphrase")
+    static func touchIDReasonGeneric(isSSH: Bool) -> String {
+        isSSH
+            ? tr("touchid.reason.generic_ssh", fallback: "unlock your SSH key passphrase")
+            : tr("touchid.reason.generic", fallback: "unlock your GPG passphrase")
     }
 
     /// Closes the first paragraph when a second one follows.
@@ -191,17 +193,6 @@ enum L10n {
 
     static var saveInKeychain: String {
         tr("dialog.option.save_in_keychain", fallback: "Save in Keychain")
-    }
-
-    static var emptyStateTitle: String {
-        tr("dialog.empty.title", fallback: "No active pinentry request")
-    }
-
-    static var emptyStateMessage: String {
-        tr(
-            "dialog.empty.message",
-            fallback: "The presentation coordinator will attach the next dialog here."
-        )
     }
 
     static func localizeKnownPinentryText(_ text: String, role: TextRole) -> String {
